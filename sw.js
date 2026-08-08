@@ -1,4 +1,4 @@
-const CACHE='abu-pwa-v1-0-0-preloaded-tickets';
+const CACHE='abu-pwa-v1-0-1-cashout-as-win';
 const ASSETS=[
   './',
   './index.html',
