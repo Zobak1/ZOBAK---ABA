@@ -1,4 +1,4 @@
-const CACHE='abu-pwa-v1-0-1-cashout-as-win';
+const CACHE='abu-pwa-v1-0-2-analysis-link-fix';
 const ASSETS=[
   './',
   './index.html',
