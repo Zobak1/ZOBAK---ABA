@@ -1,0 +1,3749 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#19324D">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=0111">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=0111">
+<title>ABU – Anděl Bet Upgrade</title>
+<style>
+:root{
+  --nav:#19324D; --nav2:#274A6A; --bg:#F4F6F8; --card:#fff; --text:#263238;
+  --muted:#607D8B; --gold:#B08D57; --pos:#2E7D32; --neg:#B23A3A; --line:#E0E5E9;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+.hidden{display:none!important}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{background:#fff;width:min(420px,100%);padding:28px;border-radius:18px;box-shadow:0 12px 40px rgba(0,0,0,.08)}
+.login-card h1{margin:0;color:var(--nav);font-size:30px}
+.login-card p{margin:4px 0 24px;color:var(--muted)}
+label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+input,textarea,select{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px;background:white}
+textarea{min-height:90px;resize:vertical}
+.primary{background:var(--nav);color:#fff;border:0;border-radius:10px;padding:12px 16px}
+.secondary{background:#fff;color:var(--nav);border:1px solid var(--line);border-radius:10px;padding:11px 14px}
+.danger{background:var(--neg);color:#fff;border:0;border-radius:10px;padding:10px 14px}
+#app{min-height:100vh}
+header{height:58px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;position:sticky;top:0;z-index:3}
+header strong{color:var(--nav)}
+.layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 58px)}
+nav{background:var(--nav);padding:14px 10px}
+nav button{display:block;width:100%;text-align:left;background:transparent;color:#fff;border:0;border-radius:9px;padding:13px 14px;margin:3px 0}
+nav button.active,nav button:hover{background:var(--nav2)}
+main{padding:24px;min-width:0}
+h2{margin:0 0 18px;color:var(--nav)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}
+.card .k{font-size:13px;color:var(--muted)}
+.card .v{font-size:24px;font-weight:700;margin-top:8px}
+.table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:14px}
+th{color:var(--muted);font-weight:600;background:#FAFBFC}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar input{max-width:360px}
+.ticket-head{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:#fff;border:1px solid var(--line);padding:16px;border-radius:14px}
+.match-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.grid3{display:grid;grid-template-columns:2fr 2fr 1fr;gap:10px}
+.row-actions{display:flex;gap:10px;justify-content:space-between;margin-top:14px}
+.small{font-size:12px;color:var(--muted)}
+.pos{color:var(--pos)} .neg{color:var(--neg)}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  nav{position:sticky;top:58px;display:flex;overflow:auto;z-index:2;padding:8px}
+  nav button{white-space:nowrap;width:auto}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .ticket-head,.grid3{grid-template-columns:1fr}
+  main{padding:16px}
+}
+.country-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.country-tile{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
+.country-tile.green{border-left:8px solid #2E7D32}
+.country-tile.yellow{border-left:8px solid #D5A100}
+.country-tile.red{border-left:8px solid #B23A3A}
+.country-tile.gray{border-left:8px solid #90A4AE}
+.analytics-section{margin-top:26px}
+.filter-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:18px}
+.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.analytics-table td,.analytics-table th{white-space:nowrap}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px}
+.status-green{background:#2E7D32}.status-yellow{background:#D5A100}.status-red{background:#B23A3A}.status-gray{background:#90A4AE}
+@media(max-width:900px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.filter-grid{grid-template-columns:1fr}}
+.chart-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;overflow:hidden}
+.simple-bar{height:14px;background:#E8EDF1;border-radius:8px;overflow:hidden}
+.simple-bar>span{display:block;height:100%;border-radius:8px}
+.icon-badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#F1F4F7;font-size:13px;margin-left:6px}
+.check-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.check-row label{display:flex;align-items:center;gap:6px;margin:0;color:var(--text)}
+.check-row input{width:auto}
+@media(max-width:900px){.country-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.cards,.country-grid{grid-template-columns:1fr}}
+
+#abaSplash{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:#080B0D;
+  transition:opacity .35s ease,visibility .35s ease;
+}
+#abaSplash.hide{opacity:0;visibility:hidden;pointer-events:none}
+#abaSplashInner{text-align:center;padding:24px}
+#abaSplash img{
+  width:min(52vw,320px);height:auto;border-radius:24%;
+  display:block;margin:0 auto 18px;
+}
+#abaSplashTitle{font-size:28px;font-weight:700;letter-spacing:.08em;color:#fff}
+#abaSplashSub{margin-top:8px;font-size:14px;letter-spacing:.12em;color:#1FD6E5}
+#abaSplashVersion{margin-top:12px;font-size:12px;color:#8AA0AE}
+
+
+
+
+
+
+
+
+.chart-box{
+  position:relative;
+  overflow:hidden;
+}
+.chart-watermark{
+  position:absolute;
+  left:50%;
+  top:47%;
+  width:min(70%,620px);
+  height:auto;
+  transform:translate(-50%,-50%);
+  opacity:0.05;
+  pointer-events:none;
+  z-index:0;
+}
+.chart-box svg,
+.chart-box .small{
+  position:relative;
+  z-index:1;
+}
+
+
+:root{
+  --teal:#0799A3;
+  --teal-dark:#087D86;
+  --teal-soft:#EAF7F8;
+}
+header strong::first-letter{color:var(--teal)}
+nav{padding-top:18px}
+.nav-logo{
+  display:flex;justify-content:center;align-items:center;
+  padding:4px 12px 18px;
+}
+
+nav button{
+  position:relative;padding-left:48px;
+}
+
+nav button.active{
+  background:linear-gradient(135deg,#087985,#16A9B3);
+  box-shadow:0 8px 20px rgba(0,0,0,.16);
+}
+.dashboard-top .card,
+.dashboard-secondary .card{
+  box-shadow:0 5px 18px rgba(25,50,77,.08);
+}
+.dashboard-top .card .v,
+.dashboard-secondary .card .v{
+  color:var(--teal);
+}
+.dashboard-top .card .v.pos,
+.dashboard-secondary .card .v.pos{color:var(--pos)}
+.dashboard-top .card .v.neg,
+.dashboard-secondary .card .v.neg{color:var(--neg)}
+
+.dashboard-chart{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px 12px;
+  box-shadow:0 5px 18px rgba(25,50,77,.08);
+}
+.dashboard-summary{
+  margin-top:14px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:14px 10px;
+  display:grid;grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:0;box-shadow:0 5px 18px rgba(25,50,77,.08);
+}
+.dashboard-summary .summary-item{
+  padding:4px 14px;border-right:1px solid var(--line);
+}
+.dashboard-summary .summary-item:last-child{border-right:0}
+.dashboard-summary .k{font-size:12px;color:var(--muted);margin-bottom:6px}
+.dashboard-summary .v{font-size:21px;font-weight:750;color:var(--teal)}
+.dashboard-summary .v.pos{color:var(--pos)}
+.dashboard-summary .v.neg{color:var(--neg)}
+.chart-watermark{opacity:.05;width:min(70%,620px)}
+.chart-box svg text{fill:var(--teal)}
+@media(max-width:900px){
+  .dashboard-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dashboard-summary .summary-item:nth-child(3){border-right:0}
+  .dashboard-summary .summary-item{border-bottom:1px solid var(--line)}
+  .dashboard-summary .summary-item:nth-child(n+4){border-bottom:0}
+}
+
+
+.dashboard-metrics-4{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  margin-top:14px;
+}
+.dashboard-metrics-4 .metric-card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  padding:16px 18px;min-height:96px;
+  box-shadow:0 5px 18px rgba(25,50,77,.08);
+}
+.dashboard-metrics-4 .metric-card .k{
+  font-size:13px;color:var(--muted);margin-bottom:8px;
+}
+.dashboard-metrics-4 .metric-card .v{
+  font-size:24px;font-weight:750;color:var(--teal);
+}
+.dashboard-metrics-4 .metric-card .v.pos{color:var(--pos)}
+.dashboard-metrics-4 .metric-card .v.neg{color:var(--neg)}
+
+.dashboard-metrics-6{
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  margin-top:14px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:12px 6px;
+  box-shadow:0 5px 18px rgba(25,50,77,.08);
+}
+.dashboard-metrics-6 .summary-item{
+  padding:6px 14px;border-right:1px solid var(--line);
+  min-width:0;
+}
+.dashboard-metrics-6 .summary-item:last-child{border-right:0}
+.dashboard-metrics-6 .k{
+  font-size:12px;color:var(--muted);margin-bottom:7px;
+}
+.dashboard-metrics-6 .v{
+  font-size:21px;font-weight:750;color:var(--teal);
+  white-space:nowrap;
+}
+.dashboard-metrics-6 .v.pos{color:var(--pos)}
+.dashboard-metrics-6 .v.neg{color:var(--neg)}
+
+@media(max-width:1100px){
+  .dashboard-metrics-4{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  .dashboard-metrics-6{grid-template-columns:repeat(3,minmax(0,1fr)) !important}
+  .dashboard-metrics-6 .summary-item:nth-child(3n){border-right:0}
+  .dashboard-metrics-6 .summary-item:nth-child(-n+3){border-bottom:1px solid var(--line)}
+}
+@media(max-width:650px){
+  .dashboard-metrics-4{grid-template-columns:1fr !important}
+  .dashboard-metrics-6{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+  .dashboard-metrics-6 .summary-item:nth-child(3n){border-right:1px solid var(--line)}
+  .dashboard-metrics-6 .summary-item:nth-child(2n){border-right:0}
+  .dashboard-metrics-6 .summary-item:nth-child(-n+4){border-bottom:1px solid var(--line)}
+}
+
+
+
+/* ABA 0.14.3 — branding podle schváleného návrhu */
+nav{
+  position:sticky;
+  top:58px;
+  height:calc(100vh - 58px);
+  overflow-y:auto;
+  padding:14px 12px 22px;
+}
+.nav-logo{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:138px;
+  padding:4px 8px 18px;
+  overflow:visible;
+}
+.nav-logo img{
+  display:block;
+  width:174px;
+  max-width:100%;
+  height:auto;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 18px rgba(0,0,0,.24));
+}
+nav button{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:13px 15px;
+}
+.nav-svg{
+  width:23px;
+  height:23px;
+  flex:0 0 23px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.dashboard-card-icon{
+  float:right;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  background:var(--teal-soft);
+  color:var(--teal);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:-38px;
+}
+.dashboard-card-icon svg{
+  width:25px;
+  height:25px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.chart-watermark{
+  position:absolute;
+  left:50%;
+  top:48%;
+  width:min(62%,560px);
+  height:auto;
+  transform:translate(-50%,-50%);
+  opacity:.105;
+  pointer-events:none;
+  z-index:0;
+  object-fit:contain;
+  filter:none;
+}
+.chart-box{
+  background:#fff;
+}
+.chart-box svg,
+.chart-box .small{
+  position:relative;
+  z-index:1;
+}
+@media(max-width:900px){
+  nav{
+    position:sticky;
+    top:58px;
+    height:auto;
+    overflow-x:auto;
+    overflow-y:hidden;
+    padding:8px;
+  }
+  .nav-logo{display:none}
+  nav button{flex:0 0 auto}
+}
+
+
+/* ABA 0.15.0 — Dashboard Rebuild */
+#view-dashboard{
+  --dash-teal:#0799A3;
+  --dash-teal-dark:#077D86;
+  --dash-teal-soft:#EAF7F8;
+  --dash-green:#198754;
+  --dash-red:#C63F4A;
+}
+.dashboard-shell{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+.dashboard-title{
+  margin:0 0 2px;
+  font-size:25px;
+  color:#18334D;
+}
+.dashboard-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+}
+.dashboard-kpi,
+.dashboard-detail-card{
+  position:relative;
+  min-width:0;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 7px 22px rgba(25,50,77,.08);
+}
+.dashboard-kpi{
+  min-height:96px;
+  padding:17px 72px 17px 19px;
+}
+.dashboard-label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+}
+.dashboard-value{
+  color:var(--dash-teal);
+  font-size:27px;
+  line-height:1.15;
+  font-weight:780;
+  white-space:nowrap;
+}
+.dashboard-value.pos{color:var(--dash-green)}
+.dashboard-value.neg{color:var(--dash-red)}
+.dashboard-icon{
+  position:absolute;
+  right:18px;
+  top:50%;
+  transform:translateY(-50%);
+  width:47px;
+  height:47px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--dash-teal-soft);
+  color:var(--dash-teal);
+}
+.dashboard-icon svg,
+.dashboard-detail-icon svg,
+.dashboard-mini-icon svg{
+  width:25px;
+  height:25px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.dashboard-chart{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:17px 19px 13px;
+  box-shadow:0 7px 22px rgba(25,50,77,.08);
+}
+.dashboard-chart h3{
+  margin:0 0 8px;
+  color:#18334D;
+  font-size:18px;
+}
+.dashboard-chart .chart-box{
+  border:0;
+  box-shadow:none;
+  padding:0;
+}
+.dashboard-chart .chart-watermark{
+  width:min(58%,520px);
+  opacity:.075;
+}
+.dashboard-detail-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:15px;
+}
+.dashboard-detail-card{
+  min-height:98px;
+  padding:16px 58px 16px 18px;
+}
+.dashboard-detail-value{
+  color:var(--dash-teal);
+  font-size:23px;
+  line-height:1.15;
+  font-weight:770;
+  white-space:nowrap;
+}
+.dashboard-detail-value.pos{color:var(--dash-green)}
+.dashboard-detail-value.neg{color:var(--dash-red)}
+.dashboard-detail-icon{
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--dash-teal);
+}
+.dashboard-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 7px 22px rgba(25,50,77,.08);
+  overflow:hidden;
+}
+.dashboard-summary-item{
+  position:relative;
+  min-width:0;
+  padding:15px 12px 14px 49px;
+  border-right:1px solid var(--line);
+}
+.dashboard-summary-item:last-child{border-right:0}
+.dashboard-summary-value{
+  color:var(--dash-teal);
+  font-size:21px;
+  line-height:1.15;
+  font-weight:770;
+  white-space:nowrap;
+}
+.dashboard-summary-value.pos{color:var(--dash-green)}
+.dashboard-summary-value.neg{color:var(--dash-red)}
+.dashboard-mini-icon{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--dash-teal);
+}
+.dashboard-mini-icon svg{
+  width:23px;
+  height:23px;
+}
+.chart-box svg text{fill:var(--dash-teal) !important}
+@media(max-width:1100px){
+  .dashboard-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dashboard-summary-item:nth-child(3n){border-right:0}
+  .dashboard-summary-item:nth-child(-n+3){border-bottom:1px solid var(--line)}
+}
+@media(max-width:720px){
+  .dashboard-kpi-grid{grid-template-columns:1fr}
+  .dashboard-detail-grid{grid-template-columns:1fr}
+  .dashboard-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .dashboard-summary-item:nth-child(3n){border-right:1px solid var(--line)}
+  .dashboard-summary-item:nth-child(2n){border-right:0}
+  .dashboard-summary-item:nth-child(-n+4){border-bottom:1px solid var(--line)}
+  .dashboard-value{font-size:25px}
+}
+
+
+:root{--nav:#06131D;--nav2:#0A1D2A;--bg:#071018;--card:#0B1721;--card2:#0E1B26;--text:#F3F7FA;--muted:#9FB0BE;--line:#20313D;--pos:#16C784;--neg:#FF4D57;--teal:#00D6D6}
+html,body{background:var(--bg);color:var(--text)}
+body{background:linear-gradient(180deg,#061018,#08131C)}
+header{background:#050D13;border-bottom:1px solid var(--line);color:var(--text);box-shadow:0 5px 18px rgba(0,0,0,.28)}
+header strong,h1,h2,h3{color:var(--text)}
+.layout,main{background:transparent}
+nav{background:linear-gradient(180deg,#061521,#07131D);border-right:1px solid var(--line)}
+nav button{color:#D6E1E8} nav button:hover{background:#0D2633}
+nav button.active{background:linear-gradient(135deg,#087B84,#0DB4BC);color:#fff;box-shadow:0 8px 22px rgba(0,214,214,.16)}
+.card,.analytics-section,.filter-panel,.table-wrap,.chart-box,.dashboard-kpi,.dashboard-chart,.dashboard-detail-card,.dashboard-summary-grid{background:linear-gradient(180deg,var(--card),var(--card2))!important;border-color:var(--line)!important;box-shadow:0 10px 28px rgba(0,0,0,.2)!important}
+.card .k,.dashboard-label,.small,.muted{color:var(--muted)!important}
+.card .v,.dashboard-value,.dashboard-detail-value,.dashboard-summary-value{color:var(--teal)}
+.dashboard-value.pos,.dashboard-detail-value.pos,.dashboard-summary-value.pos,.pos{color:var(--pos)!important}
+.dashboard-value.neg,.dashboard-detail-value.neg,.dashboard-summary-value.neg,.neg{color:var(--neg)!important}
+.dashboard-icon{background:#0B2C34;color:var(--teal)}
+.dashboard-detail-icon,.dashboard-mini-icon{color:var(--teal)}
+input,textarea,select,button.secondary{background:#0A1620;color:var(--text);border-color:#2A3B48}
+button.primary{background:linear-gradient(135deg,#07848D,#0EC6CE);color:#fff}
+table{color:var(--text)} th{background:#0A1620;color:#B8C7D2} td{border-color:var(--line)} tr:hover td{background:#0C1B26}
+.chart-box svg text{fill:#B9CAD4!important}.chart-box svg line{stroke:#20313D!important}.chart-box svg polyline{stroke:var(--teal)!important}.chart-box svg circle{fill:var(--teal)!important}
+.chart-watermark{opacity:.065!important}
+.dashboard-title-wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}
+
+
+
+/* ABA 0.16.1 — Final dark dashboard */
+.dashboard-main-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 220px;
+  gap:22px;
+  align-items:stretch;
+}
+.dashboard-main-left{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+  min-width:0;
+}
+.dashboard-codex-link{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  gap:24px;
+  min-height:100%;
+  padding:26px 10px 26px 8px;
+  color:var(--teal);
+}
+.dashboard-codex-link .book-icon{
+  width:46px;
+  height:46px;
+  color:var(--teal);
+}
+.dashboard-codex-link .book-icon svg{
+  width:100%;
+  height:100%;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.dashboard-codex-link .quote{
+  font-size:18px;
+  line-height:1.55;
+  color:var(--teal);
+}
+.dashboard-codex-link button{
+  border:0;
+  background:transparent;
+  color:var(--teal);
+  padding:0;
+  font-size:17px;
+  text-align:left;
+}
+.dashboard-codex-link button:hover{text-decoration:underline}
+
+.dashboard-chart-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:8px;
+}
+.dashboard-chart-head h3{margin:0}
+.chart-range{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.chart-range button{
+  min-width:43px;
+  padding:7px 10px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#08131C;
+  color:#E7EEF3;
+  font-size:13px;
+}
+.chart-range button.active{
+  border-color:#0CBCC5;
+  background:linear-gradient(135deg,#087F88,#10B9C1);
+  color:#fff;
+  box-shadow:0 5px 15px rgba(0,214,214,.18);
+}
+.dashboard-chart .chart-box{
+  min-height:360px;
+}
+.dashboard-chart .chart-box svg{
+  width:100%;
+  height:auto;
+  min-height:340px;
+}
+.dashboard-chart .chart-box svg .bankroll-area{
+  fill:url(#bankrollAreaGradient);
+}
+.dashboard-chart .chart-box svg .bankroll-grid{
+  stroke:#20313D !important;
+  stroke-dasharray:3 4;
+}
+.dashboard-chart .chart-box svg .bankroll-line{
+  stroke:var(--teal) !important;
+  stroke-width:2.4;
+  fill:none;
+}
+.dashboard-chart .chart-box svg .bankroll-point{
+  fill:var(--teal) !important;
+}
+.dashboard-summary-grid{
+  grid-template-columns:repeat(6,minmax(0,1fr));
+}
+.dashboard-summary-value{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@media(max-width:1050px){
+  .dashboard-main-grid{grid-template-columns:minmax(0,1fr) 185px;gap:15px}
+  .dashboard-codex-link .quote{font-size:16px}
+}
+@media(max-width:820px){
+  .dashboard-main-grid{grid-template-columns:1fr}
+  .dashboard-codex-link{
+    min-height:auto;
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 4px;
+  }
+  .dashboard-codex-link .quote{flex:1}
+}
+
+
+.codex-modal[hidden]{display:none!important}
+
+
+/* ABA 0.16.3 — Compact no-scroll dashboard */
+#view-dashboard{
+  height:calc(100vh - 74px);
+  overflow:hidden;
+}
+#view-dashboard .dashboard-shell{
+  height:100%;
+  gap:10px;
+}
+#view-dashboard .dashboard-title-wrap{
+  min-height:44px;
+}
+#view-dashboard .dashboard-title{
+  font-size:22px;
+  margin:0;
+}
+#view-dashboard .dashboard-title-wrap .small{
+  font-size:12px;
+}
+#view-dashboard .dashboard-kpi-grid{
+  gap:12px;
+}
+#view-dashboard .dashboard-kpi{
+  min-height:78px;
+  padding:13px 64px 13px 16px;
+  border-radius:14px;
+}
+#view-dashboard .dashboard-label{
+  font-size:12px;
+  margin-bottom:5px;
+}
+#view-dashboard .dashboard-value{
+  font-size:23px;
+}
+#view-dashboard .dashboard-icon{
+  width:42px;
+  height:42px;
+  right:15px;
+}
+#view-dashboard .dashboard-main-grid{
+  grid-template-columns:minmax(0,1fr) 205px;
+  gap:16px;
+  min-height:0;
+  flex:1;
+}
+#view-dashboard .dashboard-main-left{
+  gap:10px;
+  min-height:0;
+}
+#view-dashboard .dashboard-chart{
+  padding:13px 15px 10px;
+  min-height:0;
+  flex:1;
+}
+#view-dashboard .dashboard-chart-head{
+  margin-bottom:3px;
+}
+#view-dashboard .dashboard-chart-head h3{
+  font-size:17px;
+}
+#view-dashboard .chart-range{
+  gap:6px;
+}
+#view-dashboard .chart-range button{
+  min-width:39px;
+  padding:5px 8px;
+  font-size:12px;
+}
+#view-dashboard .dashboard-chart .chart-box{
+  min-height:0;
+  height:calc(100% - 35px);
+}
+#view-dashboard .dashboard-chart .chart-box svg{
+  min-height:0;
+  height:100%;
+  max-height:100%;
+}
+#view-dashboard .chart-watermark{
+  width:min(54%,460px);
+  opacity:.06!important;
+}
+#view-dashboard .dashboard-detail-grid{
+  gap:10px;
+}
+#view-dashboard .dashboard-detail-card{
+  min-height:72px;
+  padding:11px 48px 11px 14px;
+  border-radius:13px;
+}
+#view-dashboard .dashboard-detail-value{
+  font-size:19px;
+}
+#view-dashboard .dashboard-detail-icon{
+  right:12px;
+}
+#view-dashboard .dashboard-detail-icon svg{
+  width:21px;
+  height:21px;
+}
+#view-dashboard .dashboard-summary-grid{
+  border-radius:13px;
+}
+#view-dashboard .dashboard-summary-item{
+  padding:10px 8px 9px 39px;
+}
+#view-dashboard .dashboard-summary-item .dashboard-label{
+  font-size:11px;
+}
+#view-dashboard .dashboard-summary-value{
+  font-size:17px;
+}
+#view-dashboard .dashboard-mini-icon{
+  left:10px;
+}
+#view-dashboard .dashboard-mini-icon svg{
+  width:19px;
+  height:19px;
+}
+#view-dashboard .dashboard-codex-link{
+  padding:18px 6px 18px 4px;
+  gap:18px;
+  justify-content:center;
+}
+#view-dashboard .dashboard-codex-link .book-icon{
+  width:40px;
+  height:40px;
+}
+#view-dashboard .dashboard-codex-link .quote{
+  font-size:16px;
+  line-height:1.45;
+}
+#view-dashboard .dashboard-codex-link button{
+  font-size:15px;
+}
+@media(max-height:850px){
+  #view-dashboard .dashboard-title-wrap{min-height:38px}
+  #view-dashboard .dashboard-kpi{min-height:70px;padding-top:10px;padding-bottom:10px}
+  #view-dashboard .dashboard-value{font-size:21px}
+  #view-dashboard .dashboard-detail-card{min-height:64px}
+  #view-dashboard .dashboard-summary-item{padding-top:8px;padding-bottom:7px}
+  #view-dashboard .dashboard-chart{padding-top:10px}
+}
+@media(max-width:900px){
+  #view-dashboard{
+    height:auto;
+    overflow:visible;
+  }
+  #view-dashboard .dashboard-main-grid{
+    grid-template-columns:1fr;
+  }
+  #view-dashboard .dashboard-chart .chart-box{
+    height:auto;
+  }
+  #view-dashboard .dashboard-chart .chart-box svg{
+    height:auto;
+  }
+}
+
+
+/* ABA 0.16.4 — Scrollable Kodex modal */
+.codex-modal{
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  align-items:flex-start;
+  justify-content:center;
+  padding:22px 16px 40px;
+}
+.codex-modal-inner{
+  position:relative;
+  width:min(92vw,760px);
+  max-height:none;
+  margin:auto;
+  padding-top:12px;
+}
+.codex-modal img{
+  display:block;
+  width:100%;
+  max-width:760px;
+  height:auto;
+  max-height:none;
+  object-fit:contain;
+  border-radius:10px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+.codex-close{
+  position:sticky;
+  top:8px;
+  float:right;
+  right:0;
+  z-index:2;
+  margin:0 0 -44px 0;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid #52616B;
+  background:#0A1117;
+  color:#fff;
+  font-size:24px;
+  line-height:1;
+  box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+@media(max-width:720px){
+  .codex-modal{padding:12px 8px 28px}
+  .codex-modal-inner{width:96vw}
+  .codex-modal img{max-width:96vw}
+  .codex-close{top:4px;right:4px}
+}
+
+
+/* ABA 0.16.5 — iPad viewport and Kodex scroll fix */
+html,body{
+  min-height:100%;
+}
+body{
+  min-height:100dvh;
+}
+.layout{
+  min-height:calc(100dvh - 72px);
+}
+main{
+  min-height:0;
+}
+
+#view-dashboard{
+  height:auto !important;
+  min-height:calc(100dvh - 92px);
+  overflow:visible !important;
+}
+#view-dashboard .dashboard-shell{
+  min-height:calc(100dvh - 108px);
+  height:auto !important;
+  display:grid;
+  grid-template-rows:auto auto minmax(0,1fr);
+  gap:9px;
+}
+#view-dashboard .dashboard-title-wrap{
+  min-height:34px;
+}
+#view-dashboard .dashboard-kpi-grid{
+  gap:10px;
+}
+#view-dashboard .dashboard-kpi{
+  min-height:68px;
+  padding:10px 58px 10px 14px;
+}
+#view-dashboard .dashboard-value{
+  font-size:21px;
+}
+#view-dashboard .dashboard-icon{
+  width:38px;
+  height:38px;
+  right:13px;
+}
+#view-dashboard .dashboard-main-grid{
+  min-height:0;
+  height:100%;
+  grid-template-columns:minmax(0,1fr) 185px;
+  gap:14px;
+}
+#view-dashboard .dashboard-main-left{
+  min-height:0;
+  display:grid;
+  grid-template-rows:minmax(250px,1fr) auto auto;
+  gap:8px;
+}
+#view-dashboard .dashboard-chart{
+  min-height:0;
+  height:100%;
+  padding:10px 13px 8px;
+}
+#view-dashboard .dashboard-chart .chart-box{
+  min-height:0;
+  height:calc(100% - 31px);
+}
+#view-dashboard .dashboard-chart .chart-box svg{
+  width:100%;
+  height:100%;
+  min-height:0;
+  display:block;
+}
+#view-dashboard .dashboard-detail-grid{
+  gap:8px;
+}
+#view-dashboard .dashboard-detail-card{
+  min-height:58px;
+  padding:8px 42px 8px 12px;
+}
+#view-dashboard .dashboard-detail-value{
+  font-size:17px;
+}
+#view-dashboard .dashboard-summary-item{
+  padding:7px 6px 7px 34px;
+}
+#view-dashboard .dashboard-summary-value{
+  font-size:15px;
+}
+#view-dashboard .dashboard-summary-item .dashboard-label{
+  font-size:10px;
+}
+#view-dashboard .dashboard-mini-icon{
+  left:8px;
+}
+#view-dashboard .dashboard-mini-icon svg{
+  width:17px;
+  height:17px;
+}
+#view-dashboard .dashboard-codex-link{
+  min-height:0;
+  height:100%;
+  justify-content:center;
+  padding:12px 4px;
+  gap:14px;
+}
+#view-dashboard .dashboard-codex-link .quote{
+  font-size:15px;
+}
+
+/* Kodex: scrolluje modal, ne stránka pod ním */
+.codex-modal{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:none;
+  overflow-y:auto !important;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  padding:16px 10px 28px;
+  background:rgba(0,0,0,.88);
+  backdrop-filter:blur(5px);
+}
+.codex-modal.open{
+  display:block !important;
+}
+.codex-modal-inner{
+  position:relative;
+  width:min(94vw,720px);
+  max-width:720px;
+  max-height:none !important;
+  margin:0 auto;
+  padding-top:8px;
+}
+.codex-modal img{
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:none;
+  max-height:none !important;
+  object-fit:contain;
+  border-radius:10px;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
+.codex-close{
+  position:sticky;
+  top:4px;
+  float:right;
+  z-index:5;
+  margin:0 2px -44px 0;
+}
+body.codex-open{
+  overflow:hidden !important;
+  height:100dvh;
+}
+@media(max-width:900px){
+  #view-dashboard{
+    min-height:auto;
+  }
+  #view-dashboard .dashboard-shell{
+    min-height:auto;
+    display:flex;
+  }
+  #view-dashboard .dashboard-main-grid{
+    grid-template-columns:1fr;
+  }
+  #view-dashboard .dashboard-main-left{
+    display:flex;
+  }
+}
+
+
+/* ABA 0.17.0 — Archiv analýz */
+.dashboard-analysis-link{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid var(--teal);
+  background:rgba(0,214,214,.07);
+  color:var(--teal);
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:13px;
+  white-space:nowrap;
+}
+.dashboard-analysis-link:hover{background:rgba(0,214,214,.13)}
+.dashboard-analysis-link svg{
+  width:18px;height:18px;fill:none;stroke:currentColor;
+  stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+.analysis-layout{
+  display:grid;
+  grid-template-columns:minmax(300px,420px) minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.analysis-form-card,.analysis-list-card{
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:17px;
+  box-shadow:0 10px 28px rgba(0,0,0,.2);
+}
+.analysis-form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.analysis-form-grid .full{grid-column:1/-1}
+.analysis-form-actions{
+  display:flex;
+  gap:10px;
+  margin-top:14px;
+  flex-wrap:wrap;
+}
+.analysis-toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:13px;
+}
+.analysis-count{
+  color:var(--teal);
+  font-weight:700;
+}
+.analysis-item{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px;
+  background:#091720;
+  margin-bottom:10px;
+}
+.analysis-item:last-child{margin-bottom:0}
+.analysis-item-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.analysis-match{
+  font-size:17px;
+  font-weight:750;
+  color:#fff;
+}
+.analysis-meta{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+.analysis-badges{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:10px 0;
+}
+.analysis-badge{
+  border-radius:999px;
+  border:1px solid #27505A;
+  color:var(--teal);
+  padding:4px 8px;
+  font-size:12px;
+}
+.analysis-text{
+  white-space:pre-wrap;
+  line-height:1.5;
+  color:#D9E4EA;
+}
+.analysis-item-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+.analysis-empty{
+  color:var(--muted);
+  text-align:center;
+  padding:32px 15px;
+}
+@media(max-width:900px){
+  .analysis-layout{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .analysis-form-grid{grid-template-columns:1fr}
+  .analysis-form-grid .full{grid-column:auto}
+  .dashboard-analysis-link span{display:none}
+}
+
+
+/* ABA 0.18.0 — Import analýzy */
+.analysis-import-button{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.analysis-import-modal{
+  position:fixed;
+  inset:0;
+  z-index:11000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.86);
+  backdrop-filter:blur(5px);
+}
+.analysis-import-modal.open{display:flex}
+.analysis-import-dialog{
+  width:min(94vw,760px);
+  max-height:92vh;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.5);
+}
+.analysis-import-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+.analysis-import-head h3{margin:0}
+.analysis-import-close{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--line);
+  background:#0A1620;color:#fff;font-size:22px;
+}
+.analysis-import-textarea{
+  width:100%;
+  min-height:250px;
+  resize:vertical;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.analysis-import-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.analysis-preview{
+  margin-top:16px;
+  border:1px solid #27505A;
+  border-radius:14px;
+  padding:14px;
+  background:#091720;
+}
+.analysis-preview.hidden{display:none}
+.analysis-preview-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 16px;
+}
+.analysis-preview-row{
+  min-width:0;
+}
+.analysis-preview-row.full{grid-column:1/-1}
+.analysis-preview-label{
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:3px;
+}
+.analysis-preview-value{
+  color:#fff;
+  word-break:break-word;
+}
+.analysis-import-error{
+  color:var(--neg);
+  margin-top:10px;
+  white-space:pre-wrap;
+}
+@media(max-width:620px){
+  .analysis-preview-grid{grid-template-columns:1fr}
+  .analysis-preview-row.full{grid-column:auto}
+}
+
+
+/* ABA 0.19.0 — Databáze analýz */
+.analysis-db-layout{
+  display:grid;
+  grid-template-columns:minmax(320px,440px) minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+}
+.analysis-import-panel,
+.analysis-database-panel{
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 10px 28px rgba(0,0,0,.2);
+}
+.analysis-import-panel h3,
+.analysis-database-panel h3{
+  margin-top:0;
+}
+.analysis-import-steps{
+  color:var(--muted);
+  line-height:1.6;
+  margin-bottom:13px;
+}
+.analysis-import-steps strong{color:#fff}
+.analysis-direct-textarea{
+  width:100%;
+  min-height:280px;
+  resize:vertical;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.analysis-direct-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.analysis-search-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:14px;
+}
+.analysis-search-row input{
+  flex:1;
+}
+.analysis-db-count{
+  color:var(--teal);
+  font-weight:750;
+  white-space:nowrap;
+}
+.analysis-db-card{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#091720;
+  padding:14px;
+  margin-bottom:10px;
+}
+.analysis-db-card:last-child{margin-bottom:0}
+.analysis-db-card-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.analysis-db-title{
+  font-size:17px;
+  font-weight:760;
+  color:#fff;
+}
+.analysis-db-meta{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:4px;
+}
+.analysis-db-main{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px 16px;
+  margin-top:12px;
+}
+.analysis-db-field-label{
+  color:var(--muted);
+  font-size:11px;
+  margin-bottom:2px;
+}
+.analysis-db-field-value{
+  color:#E7EEF3;
+}
+.analysis-db-card-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+.analysis-detail-modal{
+  position:fixed;
+  inset:0;
+  z-index:11500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.87);
+  backdrop-filter:blur(5px);
+}
+.analysis-detail-modal.open{display:flex}
+.analysis-detail-dialog{
+  width:min(94vw,820px);
+  max-height:92vh;
+  overflow:auto;
+  -webkit-overflow-scrolling:touch;
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 24px 70px rgba(0,0,0,.52);
+}
+.analysis-detail-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:14px;
+}
+.analysis-detail-close{
+  width:38px;height:38px;border-radius:50%;
+  border:1px solid var(--line);
+  background:#0A1620;color:#fff;font-size:22px;
+}
+.analysis-detail-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px 16px;
+  margin-bottom:16px;
+}
+.analysis-detail-grid .full{grid-column:1/-1}
+.analysis-detail-text{
+  white-space:pre-wrap;
+  line-height:1.55;
+  color:#D9E4EA;
+  border-top:1px solid var(--line);
+  padding-top:14px;
+}
+.dashboard-analysis-card{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border:1px solid #1D5560;
+  border-radius:14px;
+  padding:13px 15px;
+  background:linear-gradient(180deg,#0A1721,#0D1D28);
+}
+.dashboard-analysis-card strong{color:#fff}
+.dashboard-analysis-card .small{margin-top:3px}
+.dashboard-analysis-card button{
+  border:1px solid var(--teal);
+  color:var(--teal);
+  background:transparent;
+  border-radius:10px;
+  padding:9px 12px;
+  white-space:nowrap;
+}
+@media(max-width:900px){
+  .analysis-db-layout{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .analysis-db-main,.analysis-detail-grid{grid-template-columns:1fr}
+  .analysis-detail-grid .full{grid-column:auto}
+  .dashboard-analysis-card{align-items:flex-start;flex-direction:column}
+  .dashboard-analysis-card button{width:100%}
+}
+
+
+/* ABA 0.20.0 — Analysis Protocol v1.0 */
+.analysis-id{
+  color:var(--teal);
+  font-size:11px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  margin-top:4px;
+}
+.analysis-protocol-note{
+  border-left:3px solid var(--teal);
+  background:rgba(0,214,214,.06);
+  padding:10px 12px;
+  border-radius:0 10px 10px 0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+  margin-bottom:12px;
+}
+.analysis-duplicate-warning{
+  color:#FFB454;
+  font-weight:700;
+  margin-top:10px;
+}
+.analysis-status-badge{
+  border:1px solid #38515F;
+  color:#B8C7D2;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:11px;
+}
+
+
+.analysis-ticket-link{
+  margin-top:10px;padding:10px 12px;border:1px solid #28535d;
+  border-radius:11px;background:rgba(0,214,214,.055)
+}
+.analysis-ticket-link label{color:var(--teal);font-size:12px}
+.analysis-ticket-link select{margin-top:5px}
+.ticket-linked-analysis{margin-top:5px;color:var(--teal);font-size:12px}
+.analysis-evaluation-box{
+  margin-top:16px;padding-top:15px;border-top:1px solid var(--line)
+}
+.analysis-evaluation-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:11px 15px
+}
+.analysis-evaluation-grid .full{grid-column:1/-1}
+.analysis-evaluation-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.analysis-auto-note{
+  padding:9px 11px;border-left:3px solid var(--teal);
+  background:rgba(0,214,214,.055);color:var(--muted);
+  border-radius:0 9px 9px 0;font-size:12px;margin-bottom:12px
+}
+@media(max-width:620px){
+ .analysis-evaluation-grid{grid-template-columns:1fr}
+ .analysis-evaluation-grid .full{grid-column:auto}
+}
+
+
+/* ABA 0.21.3 — History ticket analysis linking */
+.match-card-title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+  color:#FFFFFF !important;
+  font-size:19px;
+  font-weight:800;
+  line-height:1.35;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.history-analysis-link{
+  margin-top:10px;
+  padding:11px 12px;
+  border:1px solid #28535D;
+  border-radius:11px;
+  background:rgba(0,214,214,.055);
+}
+.history-analysis-link .small{
+  margin-top:5px;
+}
+
+
+.analysis-link-confirmation{
+  margin-top:7px;
+  color:var(--pos);
+  font-size:12px;
+  font-weight:750;
+}
+
+
+.ticket-delete-zone{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+.ticket-delete-button{
+  background:transparent;
+  color:var(--neg);
+  border:1px solid rgba(255,77,87,.55);
+}
+.ticket-delete-button:hover{
+  background:rgba(255,77,87,.08);
+}
+
+
+/* ABA 0.22.0 — oprava duplicitních ID tiketů a chybného vyhodnocování */
+.analysis-picker-button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#071924;border:1px solid #24465a;color:#eef9ff;border-radius:12px;padding:15px 16px;font:inherit;cursor:pointer}
+.analysis-picker-button:hover,.analysis-picker-button:focus{border-color:var(--teal);outline:none;box-shadow:0 0 0 3px rgba(13,180,188,.15)}
+.analysis-picker-overlay{position:fixed;inset:0;z-index:9999;background:rgba(0,8,14,.78);display:flex;align-items:center;justify-content:center;padding:22px}
+.analysis-picker-overlay[hidden]{display:none!important}
+.analysis-picker-dialog{width:min(760px,100%);max-height:82vh;overflow:auto;background:#081923;border:1px solid #2a5367;border-radius:18px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.48)}
+.analysis-picker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.analysis-picker-list{display:grid;gap:9px}
+.analysis-picker-item{width:100%;text-align:left;background:#0c2230;border:1px solid #284b5d;color:#eef9ff;border-radius:12px;padding:13px 14px;cursor:pointer}
+.analysis-picker-item:hover,.analysis-picker-item:focus{border-color:var(--teal);outline:none;background:#103040}
+.analysis-picker-item strong{display:block;margin-bottom:4px}
+.analysis-picker-match{border-color:rgba(13,180,188,.8);background:rgba(13,180,188,.11)}
+.analysis-picker-section{margin:14px 0 7px;color:var(--teal);font-weight:700}
+
+</style>
+</head>
+<body>
+
+<div id="codexModal" class="codex-modal" aria-hidden="true" hidden onclick="if(event.target===this)closeCodex()">
+  <div class="codex-modal-inner">
+    <button class="codex-close" type="button" aria-label="Zavřít" onclick="closeCodex()">×</button>
+    <img src="kodex-spravce-kapitalu.png?v=0160" alt="Kodex správce kapitálu">
+  </div>
+</div>
+
+
+<div id="abaSplash" aria-label="Spouštění ABA">
+  <div id="abaSplashInner">
+    <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
+    <div id="abaSplashTitle">ABA</div>
+    <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
+    <div id="abaSplashVersion">v1.0.0</div>
+  </div>
+</div>
+
+<section id="login">
+  <div class="login-card">
+    <h1>ABA</h1>
+    <p>Anděl Bet Analytics</p>
+
+    <div id="setupBox" class="hidden">
+      <div class="small" style="margin-bottom:12px">
+        První bezpečné spuštění: nastav si vlastní login a heslo.
+      </div>
+      <label>Nový login</label>
+      <input id="setupUser" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <label>Nové heslo</label>
+      <input id="setupPass" type="password" autocomplete="new-password">
+      <label>Heslo znovu</label>
+      <input id="setupPass2" type="password" autocomplete="new-password">
+      <button class="primary" style="width:100%;margin-top:18px" onclick="createAccount()">Nastavit přístup</button>
+    </div>
+
+    <div id="loginBox">
+      <label>Login</label>
+      <input id="loginUser" autocomplete="off" autocapitalize="none" spellcheck="false">
+      <label>Heslo</label>
+      <input id="loginPass" type="password" autocomplete="new-password">
+      <button class="primary" style="width:100%;margin-top:18px" onclick="login()">Přihlásit</button>
+<button class="secondary" style="width:100%;margin-top:10px" onclick="recoverAccess()">Obnovit přístup</button>
+    </div>
+
+    <div class="small" style="margin-top:12px">
+      Přihlašovací údaje se nepředvyplňují a nejsou uloženy v kódu aplikace.
+    </div>
+  </div>
+</section>
+
+<section id="app" class="hidden">
+
+<div id="analysisImportModal" class="analysis-import-modal" aria-hidden="true" onclick="if(event.target===this)closeAnalysisImport()">
+  <div class="analysis-import-dialog">
+    <div class="analysis-import-head">
+      <h3>Import analýzy</h3>
+      <button type="button" class="analysis-import-close" onclick="closeAnalysisImport()" aria-label="Zavřít">×</button>
+    </div>
+    <div class="small">Vlož celý blok od <strong>=== ABA_ANALYSIS ===</strong> po <strong>=== END ===</strong>.</div>
+    <textarea id="analysisImportText" class="analysis-import-textarea" placeholder="Sem vlož blok analýzy z chatu..."></textarea>
+    <div id="analysisImportError" class="analysis-import-error"></div>
+    <div class="analysis-import-actions">
+      <button class="primary" type="button" onclick="previewImportedAnalysis()">Zkontrolovat import</button>
+      <button class="secondary" type="button" onclick="clearAnalysisImport()">Vymazat</button>
+    </div>
+    <div id="analysisImportPreview" class="analysis-preview hidden"></div>
+  </div>
+</div>
+
+
+<div id="analysisDetailModal" class="analysis-detail-modal" aria-hidden="true" onclick="if(event.target===this)closeAnalysisDetail()">
+  <div class="analysis-detail-dialog">
+    <div class="analysis-detail-head">
+      <div>
+        <h3 id="analysisDetailTitle" style="margin:0"></h3>
+        <div id="analysisDetailMeta" class="small"></div>
+      </div>
+      <button class="analysis-detail-close" type="button" onclick="closeAnalysisDetail()">×</button>
+    </div>
+    <div id="analysisDetailBody"></div>
+  </div>
+</div>
+
+<header>
+  <strong>ABU – Anděl Bet Upgrade</strong>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.0</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+</header>
+<div class="layout">
+<nav>
+  <div class="nav-logo"><img src="aba-sidebar-logo.png?v=0143" alt="ABA – Angel Bet Analytics"></div>
+  <button data-view="dashboard" class="active"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10.5V21h13V10.5"/><path d="M9.5 21v-6h5v6"/></svg><span>Dashboard</span></button>
+  <button data-view="new"><svg class="nav-svg" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M12 8v8M8 12h8"/></svg><span>Nový tiket</span></button>
+  <button data-view="history"><svg class="nav-svg" viewBox="0 0 24 24"><rect x="4" y="3" width="14" height="18" rx="2"/><path d="M8 7h6M8 11h6"/><circle cx="17.5" cy="16.5" r="3.5"/><path d="M17.5 14.5v2.2l1.4.8"/></svg><span>Historie tiketů</span></button>
+  <button data-view="watchlist"><svg class="nav-svg" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg><span>Zvažované zápasy</span></button>
+  <button data-view="analyses"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h7"/><path d="m15 13 2 2 3-4"/></svg><span>Analýzy</span></button>
+  <button data-view="stats"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M5 20V10M10 20V5M15 20v-8M20 20V3"/></svg><span>Statistiky</span></button>
+  <button data-view="settings"><svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21h-4v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Nastavení</span></button>
+</nav>
+<main>
+  <section id="view-dashboard"></section>
+  <section id="view-new" class="hidden"></section>
+  <section id="view-history" class="hidden"></section>
+  <section id="view-watchlist" class="hidden"></section>
+  <section id="view-analyses" class="hidden"></section>
+  <section id="view-stats" class="hidden"></section>
+  <section id="view-settings" class="hidden"></section>
+</main>
+</div>
+</section>
+
+<script>
+const APP_VERSION='1.0.0';
+const KEY='abu_zobak_v1';
+const AUTH_KEY='abu_auth_v1';
+const BACKUP_KEY='abu_internal_backups_v1';
+const MAX_INTERNAL_BACKUPS=20;
+const COMPETITIONS = [
+  {country:'Evropské poháry',league:'Liga mistrů',flag:'🏆'},
+  {country:'Evropské poháry',league:'Evropská liga',flag:'🏆'},
+  {country:'Evropské poháry',league:'Konferenční liga',flag:'🏆'},
+  {country:'Anglie',league:'Premier League',flag:'🏴'},
+  {country:'Belgie',league:'Jupiler Pro League',flag:'🇧🇪'},
+  {country:'Bulharsko',league:'First League',flag:'🇧🇬'},
+  {country:'Česko',league:'Chance Liga',flag:'🇨🇿'},
+  {country:'Dánsko',league:'Superliga',flag:'🇩🇰'},
+  {country:'Finsko',league:'Veikkausliiga',flag:'🇫🇮'},
+  {country:'Francie',league:'Ligue 1',flag:'🇫🇷'},
+  {country:'Chorvatsko',league:'HNL',flag:'🇭🇷'},
+  {country:'Irsko',league:'Premier Division',flag:'🇮🇪'},
+  {country:'Island',league:'Besta deild karla',flag:'🇮🇸'},
+  {country:'Itálie',league:'Serie A',flag:'🇮🇹'},
+  {country:'Nizozemsko',league:'Eredivisie',flag:'🇳🇱'},
+  {country:'Norsko',league:'Eliteserien',flag:'🇳🇴'},
+  {country:'Německo',league:'Bundesliga',flag:'🇩🇪'},
+  {country:'Polsko',league:'Ekstraklasa',flag:'🇵🇱'},
+  {country:'Portugalsko',league:'Primeira Liga',flag:'🇵🇹'},
+  {country:'Rakousko',league:'Bundesliga',flag:'🇦🇹'},
+  {country:'Rumunsko',league:'Liga I',flag:'🇷🇴'},
+  {country:'Saúdská Arábie',league:'Saudi Pro League',flag:'🇸🇦'},
+  {country:'Řecko',league:'Super League',flag:'🇬🇷'},
+  {country:'Skotsko',league:'Premiership',flag:'🏴'},
+  {country:'Slovensko',league:'Niké liga',flag:'🇸🇰'},
+  {country:'Slovinsko',league:'PrvaLiga',flag:'🇸🇮'},
+  {country:'Srbsko',league:'SuperLiga',flag:'🇷🇸'},
+  {country:'Španělsko',league:'La Liga',flag:'🇪🇸'},
+  {country:'Švédsko',league:'Allsvenskan',flag:'🇸🇪'},
+  {country:'Švýcarsko',league:'Super League',flag:'🇨🇭'},
+  {country:'Turecko',league:'Süper Lig',flag:'🇹🇷'},
+  {country:'Ukrajina',league:'Premier League',flag:'🇺🇦'}
+];
+
+const BET_TYPES = [
+  {category:'Výsledek zápasu',type:'1 – výhra domácích'},
+  {category:'Výsledek zápasu',type:'X – remíza'},
+  {category:'Výsledek zápasu',type:'2 – výhra hostů'},
+  {category:'Dvojitá šance',type:'1X'},
+  {category:'Dvojitá šance',type:'X2'},
+  {category:'Dvojitá šance',type:'12'},
+  {category:'Góly',type:'Over 0,5'},
+  {category:'Góly',type:'Over 1,5'},
+  {category:'Góly',type:'Over 2,5'},
+  {category:'Góly',type:'Over 3,5'},
+  {category:'Góly',type:'Under 1,5'},
+  {category:'Góly',type:'Under 2,5'},
+  {category:'Góly',type:'Under 3,5'},
+  {category:'Oba dají gól',type:'Ano'},
+  {category:'Oba dají gól',type:'Ne'},
+  {category:'Handicap',type:'Handicap domácí'},
+  {category:'Handicap',type:'Handicap hosté'},
+  {category:'Postup',type:'Postup domácího týmu'},
+  {category:'Postup',type:'Postup hostujícího týmu'},
+  {category:'Rohy',type:'Počet rohů – Over'},
+  {category:'Rohy',type:'Počet rohů – Under'},
+  {category:'Rohy',type:'Více rohů domácí'},
+  {category:'Rohy',type:'Více rohů hosté'},
+  {category:'Rohy',type:'Rohy domácích'},
+  {category:'Rohy',type:'Rohy hostů'},
+  {category:'Střely',type:'Počet střel – Over'},
+  {category:'Střely',type:'Počet střel – Under'},
+  {category:'Střely',type:'Více střel domácí'},
+  {category:'Střely',type:'Více střel hosté'},
+  {category:'Střely na branku',type:'Střely na branku – Over'},
+  {category:'Střely na branku',type:'Střely na branku – Under'},
+  {category:'Střely na branku',type:'Více střel na branku domácí'},
+  {category:'Střely na branku',type:'Více střel na branku hosté'},
+  {category:'Jiné',type:'Jiný typ'}
+];
+const defaultData={
+  settings:{startingBankroll:100000,bankrollAdjustment:83.94,bankrollBaseline20260801:true},
+  tickets:[
+    {id:'2026 - 000001',date:'2026-08-01',stake:100000,totalOdds:1.13,payout:113000,status:'Výherní',note:'Betano ID 20007901085.',matches:[
+      {name:'FC Porto – SC União Torreense',pick:'FC Porto vyhraje',odds:1.13,result:'1:0',status:'Vyšla',country:'Portugalsko',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000002',date:'2026-08-02',stake:100000,totalOdds:2.64,payout:259918.79,status:'Cash Out',note:'Betano ID 20007914645. Uzavřeno přes Cash Out.',matches:[
+      {name:'Midtjylland – Horsens',pick:'Midtjylland vyhraje',odds:1.35,result:'2:1',status:'Vyšla',country:'Dánsko',league:'Superliga',euroLoad:'none',note:''},
+      {name:'Ludogorets – Botev Vratsa',pick:'Ludogorets vyhraje',odds:1.33,result:'2:1',status:'Vyšla',country:'Bulharsko',league:'First League',euroLoad:'none',note:''},
+      {name:'CSKA Sofia – Dunav Ruse',pick:'CSKA Sofia vyhraje',odds:1.29,result:'2:1',status:'Vyšla',country:'Bulharsko',league:'',euroLoad:'none',note:''},
+      {name:'Riga FC – Grobiņas',pick:'Riga FC vyhraje',odds:1.14,result:'4:0',status:'Vyšla',country:'Lotyšsko',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000003',date:'2026-08-03',stake:72000,totalOdds:1.75,payout:122969.56,status:'Cash Out',note:'Betano ID 20007955303. Uzavřeno přes Cash Out.',matches:[
+      {name:'Shakhtar Donetsk – Kudrivka',pick:'Shakhtar Donetsk vyhraje',odds:1.14,result:'5:1',status:'Vyšla',country:'Ukrajina',league:'Premier League',euroLoad:'none',note:''},
+      {name:'Vojvodina – Mačva Šabac',pick:'Vojvodina vyhraje',odds:1.14,result:'2:0',status:'Vyšla',country:'Srbsko',league:'SuperLiga',euroLoad:'none',note:''},
+      {name:'Celtic – Dundee',pick:'Celtic vyhraje',odds:1.21,result:'1:0',status:'Vyšla',country:'Skotsko',league:'Premiership',euroLoad:'none',note:''},
+      {name:'Halmstads – Sirius',pick:'Dvojitá šance X2',odds:1.11,result:'0:2',status:'Vyšla',country:'Švédsko',league:'Allsvenskan',euroLoad:'none',note:''}]},
+    {id:'2026 - 000004',date:'2026-08-03',stake:20000,totalOdds:1.75,payout:34224.27,status:'Cash Out',note:'Betano ID 20007955625. Uzavřeno přes Cash Out.',matches:[
+      {name:'Shakhtar Donetsk – Kudrivka',pick:'Shakhtar Donetsk vyhraje',odds:1.14,result:'5:1',status:'Vyšla',country:'Ukrajina',league:'Premier League',euroLoad:'none',note:''},
+      {name:'Vojvodina – Mačva Šabac',pick:'Vojvodina vyhraje',odds:1.14,result:'2:0',status:'Vyšla',country:'Srbsko',league:'SuperLiga',euroLoad:'none',note:''},
+      {name:'Celtic – Dundee',pick:'Celtic vyhraje',odds:1.21,result:'1:0',status:'Vyšla',country:'Skotsko',league:'Premiership',euroLoad:'none',note:''},
+      {name:'Halmstads – Sirius',pick:'Dvojitá šance X2',odds:1.11,result:'0:2',status:'Vyšla',country:'Švédsko',league:'Allsvenskan',euroLoad:'none',note:''}]},
+    {id:'2026 - 000005',date:'2026-08-04',stake:100000,totalOdds:1.96,payout:0,status:'Proherní',note:'Betano ID 20007987686.',matches:[
+      {name:'Union Saint-Gilloise – Bodø/Glimt',pick:'Více než 0,5 gólu v zápase',odds:1.23,result:'3:3',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Dinamo Zagreb – Kauno Žalgiris',pick:'Dinamo Zagreb vyhraje',odds:1.17,result:'5:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Levski Sofia – Kairat',pick:'Více než 0,5 gólu v zápase',odds:1.20,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Olympiacos – NEC Nijmegen',pick:'Více než 0,5 gólu v zápase',odds:1.12,result:'0:0',status:'Nevyšla',country:'',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000006',date:'2026-08-04',stake:80000,totalOdds:4.05,payout:309138.73,status:'Cash Out',note:'Betano ID 20008008077. Uzavřeno přes Cash Out.',matches:[
+      {name:'Shamrock Rovers – Egnatia',pick:'Shamrock Rovers vyhraje',odds:1.93,result:'3:1',status:'Vyšla',country:'Irsko',league:'Premier Division',euroLoad:'none',note:''},
+      {name:'Larne – Iberia Tbilisi',pick:'Remíza',odds:2.10,result:'0:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000007',date:'2026-08-05',stake:100000,totalOdds:1.51,payout:0,status:'Proherní',note:'Betano ID 20008028652.',matches:[
+      {name:'Ferencváros – Górnik Zabrze',pick:'Více než 0,5 gólu v zápase',odds:1.15,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Aarhus – Sabah',pick:'Více než 0,5 gólu v zápase',odds:1.16,result:'2:1',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Brann – Apollon Limassol',pick:'Brann dá více než 0,5 gólu',odds:1.13,result:'0:1',status:'Nevyšla',country:'',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000008',date:'2026-08-05',stake:100000,totalOdds:3.86,payout:0,status:'Proherní',note:'Betano ID 20008036631.',matches:[
+      {name:'Ferencváros – Górnik Zabrze',pick:'Ferencváros vyhraje',odds:1.67,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Aarhus – Sabah',pick:'Aarhus vyhraje',odds:1.15,result:'2:1',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Ben Shelton – Jenson Brooksby',pick:'Ben Shelton vyhraje',odds:1.11,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Taylor Fritz – Thiago Tirante',pick:'Taylor Fritz vyhraje',odds:1.16,result:'2:0',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Rafael Jódar – Corentin Moutet',pick:'Rafael Jódar vyhraje',odds:1.30,result:'2:1',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000009',date:'2026-08-05',stake:100000,totalOdds:3.22,payout:327372,status:'Výherní',note:'Betano ID 20008040221. Základní výplata 322 112,70 Kč + bonus 5 259,30 Kč.',matches:[
+      {name:'Hubert Hurkacz – Alejandro Tabilo',pick:'Hubert Hurkacz vyhraje',odds:1.17,result:'2:0',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Rafael Jódar – Corentin Moutet',pick:'Rafael Jódar vyhraje',odds:2.07,result:'2:1',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Elise Mertens – Anna Bondár',pick:'Elise Mertens vyhraje',odds:1.33,result:'2:1',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000010',date:'2026-08-06',stake:94707,totalOdds:1.97,payout:200362.87,status:'Cash Out',note:'Betano ID 20008058163. Uzavřeno přes Cash Out.',matches:[
+      {name:'Lech Poznań – KÍ Klaksvík',pick:'Lech Poznań vyhraje',odds:1.16,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Benfica – Hearts',pick:'Benfica vyhraje',odds:1.11,result:'6:1',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Braga – Dinamo Minsk',pick:'Braga vyhraje',odds:1.13,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Lugano – NSÍ Runavík',pick:'Lugano vyhraje',odds:1.12,result:'2:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Ajax – Shelbourne',pick:'Více než 1,5 gólu v zápase',odds:1.13,result:'3:1',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Twente – DAC',pick:'Twente vyhraje',odds:1.20,result:'6:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000011',date:'2026-08-06',stake:100000,totalOdds:2.17,payout:175564.32,status:'Cash Out',note:'Betano ID 20008067051. Uzavřeno přes Cash Out.',matches:[
+      {name:'Hradec Králové – Beşiktaş',pick:'Beşiktaş vyhraje',odds:1.78,result:'0:1',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Jablonec – RFS',pick:'Jablonec vyhraje',odds:1.22,result:'2:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''}]},
+    {id:'2026 - 000012',date:'2026-08-06',stake:75000,totalOdds:4.22,payout:33564.69,status:'Cash Out',note:'Betano ID 20008074247. Částečný Cash Out se ztrátou.',matches:[
+      {name:'Salzburg – Pafos',pick:'Salzburg vyhraje',odds:1.55,result:'1:0',status:'Vyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Marta Kostyuk – Madison Keys',pick:'Marta Kostyuk vyhraje',odds:1.78,result:'2:0',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Alex de Minaur – Cameron Norrie',pick:'Alex de Minaur vyhraje',odds:1.53,result:'2:1',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000013',date:'2026-08-07',stake:100000,totalOdds:2.07,payout:207000,status:'Výherní',note:'Betano ID 20008097290.',matches:[
+      {name:'Club Brugge – Kortrijk',pick:'Club Brugge vyhraje',odds:1.25,result:'3:0',status:'Vyšla',country:'Belgie',league:'Jupiler Pro League',euroLoad:'none',note:''},
+      {name:'Östersunds – Sundsvall',pick:'Östersunds vyhraje',odds:1.44,result:'1:0',status:'Vyšla',country:'Švédsko',league:'',euroLoad:'none',note:''},
+      {name:'Elena Rybakina – Ann Li',pick:'Elena Rybakina vyhraje',odds:1.15,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000014',date:'2026-08-07',stake:20000,totalOdds:3.97,payout:0,status:'Proherní',note:'Betano ID 20008113458.',matches:[
+      {name:'Jakub Menšík – Terence Atmane',pick:'Jakub Menšík vyhraje',odds:1.47,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Naomi Osaka – Elise Mertens',pick:'Naomi Osaka vyhraje',odds:1.40,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Middlesbrough – Wrexham',pick:'Middlesbrough vyhraje',odds:1.18,result:'1:0',status:'Vyšla',country:'Anglie',league:'',euroLoad:'none',note:''},
+      {name:'Famalicão – Estoril',pick:'Famalicão vyhraje',odds:1.37,result:'1:1',status:'Nevyšla',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:''},
+      {name:'Shamrock Rovers – Dundalk',pick:'Shamrock Rovers vyhraje',odds:1.15,result:'3:2',status:'Vyšla',country:'Irsko',league:'Premier Division',euroLoad:'none',note:''}]},
+    {id:'2026 - 000015',date:'2026-08-07',stake:10000,totalOdds:8.02,payout:0,status:'Proherní',note:'Betano ID 20008114555.',matches:[
+      {name:'Jakub Menšík – Terence Atmane',pick:'Jakub Menšík vyhraje',odds:1.45,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Naomi Osaka – Elise Mertens',pick:'Naomi Osaka vyhraje',odds:1.39,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Resistencia – Independiente',pick:'Resistencia vyhraje',odds:1.34,result:'1:1',status:'Nevyšla',country:'',league:'',euroLoad:'none',note:''},
+      {name:'Hubert Hurkacz – Botic van de Zandschulp',pick:'Hubert Hurkacz vyhraje',odds:1.82,result:'2:1',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Maya Joint – Liudmila Samsonova',pick:'Maya Joint vyhraje',odds:2.32,result:'1:2',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000016',date:'2026-08-07',stake:11000,totalOdds:4.38,payout:0,status:'Proherní',note:'Betano ID 20008115005.',matches:[
+      {name:'Jakub Menšík – Terence Atmane',pick:'Jakub Menšík vyhraje',odds:1.45,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Naomi Osaka – Elise Mertens',pick:'Naomi Osaka vyhraje',odds:1.39,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Hubert Hurkacz – Botic van de Zandschulp',pick:'Hubert Hurkacz vyhraje',odds:1.75,result:'2:1',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Maya Joint – Liudmila Samsonova',pick:'Maya Joint vyhraje',odds:1.47,result:'1:2',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000017',date:'2026-08-08',stake:50000,totalOdds:4.30,payout:221099.57,status:'Výherní',note:'Betano ID 20008115722. Základní výplata 214 932,92 Kč + bonus 6 166,65 Kč.',matches:[
+      {name:'João Fonseca – Casper Ruud',pick:'João Fonseca vyhraje',odds:1.72,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Naomi Osaka – Elise Mertens',pick:'Naomi Osaka vyhraje',odds:1.39,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:'Předčasná výplata.'},
+      {name:'Coco Gauff – Maria Sakkari',pick:'Coco Gauff vyhraje',odds:1.24,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:'Předčasná výplata.'},
+      {name:'Jakub Menšík – Terence Atmane',pick:'Jakub Menšík vyhraje',odds:1.45,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000018',date:'2026-08-08',stake:100000,totalOdds:2.175,payout:0,status:'Otevřený',note:'Dnešní tiket – výsledek a skutečnou výplatu doplnit ručně. Potenciální výplata 217 500 Kč. Betano ID na snímku nebylo viditelné.',matches:[
+      {name:'PSV Eindhoven – Fortuna Sittard',pick:'PSV Eindhoven vyhraje',odds:1.20,result:'',status:'Čeká',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:''},
+      {name:'AZ Alkmaar – ADO Den Haag',pick:'AZ Alkmaar vyhraje',odds:1.45,result:'',status:'Čeká',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:''},
+      {name:'CF Estrela – Sporting CP',pick:'Sporting CP vyhraje',odds:1.25,result:'',status:'Čeká',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:''}]}
+  ]
+};
+if(!defaultData.consideredMatches){defaultData.consideredMatches=[]}
+if(!defaultData.analyses){defaultData.analyses=[]}
+let data=loadData();
+data.tickets.forEach(t=>{
+  if(t.status==='Výherní' && Number(t.payout||0)<=0){
+    t.payout=Number(t.stake||0)*Number(t.totalOdds||1);
+  }
+  if(t.status==='Vrácený' && Number(t.payout||0)<=0){
+    t.payout=Number(t.stake||0);
+  }
+  if(t.status==='Proherní'){
+    t.payout=0;
+  }
+});
+saveData();
+if(!data.consideredMatches){data.consideredMatches=[]}
+if(!data.analyses){data.analyses=[]}
+data.tickets.forEach(t=>t.matches.forEach(m=>{
+  if(m.country===undefined)m.country='';
+  if(m.league===undefined)m.league='';
+  if(m.euroLoad===undefined)m.euroLoad='none';
+      if(m.betCategory===undefined)m.betCategory='';
+      if(m.betType===undefined)m.betType='';
+}));
+saveData()
+let draft=null;
+
+function migrateData(raw){
+  const d=raw&&typeof raw==='object'?raw:structuredClone(defaultData);
+  if(!d.settings)d.settings={startingBankroll:100000};
+  if(d.settings.startingBankroll===undefined)d.settings.startingBankroll=100000;
+  if(d.settings.bankrollAdjustment===undefined)d.settings.bankrollAdjustment=83.94;
+  // v0.22.0: sjednocení počátečního bankrollu projektu k 1. 8. 2026
+  if(!d.settings.bankrollBaseline20260801){
+    d.settings.startingBankroll=100000;
+    d.settings.bankrollBaseline20260801=true;
+  }
+  if(!Array.isArray(d.tickets))d.tickets=[];
+
+  // v0.22.0: oprava duplicitních ID tiketů.
+  // Starší verze používala počet tiketů + 1. Po smazání tiketu tak mohl vzniknout
+  // nový tiket se stejným ID jako starší tiket a následné úpravy zasáhly špatný záznam.
+  const usedTicketIds=new Set();
+  const maxByYear={};
+  d.tickets.forEach(t=>{
+    const m=String(t.id||'').match(/^(\d{4})\s*-\s*(\d+)$/);
+    if(m){
+      const year=m[1],num=Number(m[2]);
+      maxByYear[year]=Math.max(maxByYear[year]||0,num);
+    }
+  });
+  const repairedTicketIds=[];
+  d.tickets.forEach(t=>{
+    const originalId=String(t.id||'');
+    if(!originalId || usedTicketIds.has(originalId)){
+      const m=originalId.match(/^(\d{4})\s*-\s*(\d+)$/);
+      const year=m?m[1]:(String(t.date||'').slice(0,4)||String(new Date().getFullYear()));
+      maxByYear[year]=(maxByYear[year]||0)+1;
+      const newId=`${year} - ${String(maxByYear[year]).padStart(6,'0')}`;
+      repairedTicketIds.push({oldId:originalId,newId,ticket:t});
+      t.id=newId;
+      usedTicketIds.add(newId);
+    }else{
+      usedTicketIds.add(originalId);
+    }
+  });
+
+  if(!Array.isArray(d.consideredMatches))d.consideredMatches=[];
+  if(!Array.isArray(d.analyses))d.analyses=[];
+  d.analyses=d.analyses.map((a,index)=>{
+    const date=a.date||new Date().toISOString().slice(0,10);
+    const compactDate=String(date).replace(/-/g,'');
+    const fallbackId=`ABA-${compactDate}-${String(index+1).padStart(4,'0')}`;
+    return {
+      id:a.id||Date.now()+index,
+      abaId:a.abaId||a.ABA_ID||fallbackId,
+      protocolVersion:a.protocolVersion||'1.0',
+      date,
+      createdTime:a.createdTime||'',
+      homeTeam:a.homeTeam||'',
+      awayTeam:a.awayTeam||'',
+      match:a.match||[a.homeTeam,a.awayTeam].filter(Boolean).join(' - '),
+      country:a.country||'',
+      competition:a.competition||'',
+      round:a.round||'',
+      recommendation:a.recommendation||'',
+      market:a.market||'',
+      alternativeTips:Array.isArray(a.alternativeTips)?a.alternativeTips:[],
+      probability:Number(a.probability||0),
+      confidence:Number(a.confidence||0),
+      expectedScore:a.expectedScore||'',
+      expectedGoals:a.expectedGoals||'',
+      expectedCorners:a.expectedCorners||'',
+      expectedShots:a.expectedShots||'',
+      expectedShotsOnTarget:a.expectedShotsOnTarget||'',
+      expectedCards:a.expectedCards||'',
+      risks:a.risks||'',
+      verdict:a.verdict||'Zvažovat',
+      text:a.text||'',
+      linkedTicketId:a.linkedTicketId||null,
+      evaluation:a.evaluation||'Nehodnoceno',
+      actualScore:a.actualScore||'',
+      postMatchNotes:a.postMatchNotes||'',
+      lesson:a.lesson||'',
+      resultStatus:a.resultStatus||a.evaluation||'Nehodnoceno',
+      createdAt:a.createdAt||new Date().toISOString()
+    };
+  });
+  // Oprava zpětných odkazů analýz u přečíslovaného duplicitního tiketu,
+  // pokud lze cílový tiket jednoznačně určit podle názvu propojeného zápasu.
+  repairedTicketIds.forEach(change=>{
+    d.analyses.forEach(a=>{
+      if(String(a.linkedTicketId||'')!==String(change.oldId||''))return;
+      const linkedName=String(a.linkedMatchName||'').trim();
+      if(!linkedName)return;
+      const candidates=d.tickets.filter(t=>Array.isArray(t.matches) && t.matches.some(m=>String(m.name||'').trim()===linkedName));
+      if(candidates.length===1 && candidates[0]===change.ticket)a.linkedTicketId=change.newId;
+    });
+  });
+
+  d.tickets.forEach(t=>{
+    if(!Array.isArray(t.matches))t.matches=[];
+    if(t.payout===undefined)t.payout=0;
+    if(t.totalOdds===undefined)t.totalOdds=1;
+    if(t.stake===undefined)t.stake=0;
+    if(!t.status)t.status='Otevřený';
+    t.matches.forEach(m=>{
+      if(m.country===undefined)m.country='';
+      if(m.league===undefined)m.league='';
+      if(m.euroLoad===undefined)m.euroLoad='none';
+      if(m.betCategory===undefined)m.betCategory='';
+      if(m.betType===undefined)m.betType='';
+      if(m.note===undefined)m.note='';
+      if(m.linkedAnalysisId===undefined)m.linkedAnalysisId=null;
+      if(m.result===undefined)m.result='';
+      if(!m.status)m.status='Čeká';
+    });
+  });
+  d.schemaVersion=18;
+  return d;
+}
+function loadData(){
+  try{
+    const stored=localStorage.getItem(KEY);
+    if(stored)return migrateData(JSON.parse(stored));
+  }catch(e){}
+  return migrateData(structuredClone(defaultData));
+}
+function loadInternalBackups(){
+  try{
+    const value=JSON.parse(localStorage.getItem(BACKUP_KEY));
+    return Array.isArray(value)?value:[];
+  }catch(e){return []}
+}
+function createInternalBackup(snapshot){
+  try{
+    const backups=loadInternalBackups();
+    const serialized=JSON.stringify(snapshot);
+    const last=backups[0];
+    if(last && last.data===serialized)return;
+    backups.unshift({id:Date.now(),createdAt:new Date().toISOString(),data:serialized});
+    localStorage.setItem(BACKUP_KEY,JSON.stringify(backups.slice(0,MAX_INTERNAL_BACKUPS)));
+  }catch(e){}
+}
+function saveData(){
+  data.schemaVersion=17;
+  const previous=localStorage.getItem(KEY);
+  if(previous){
+    try{createInternalBackup(JSON.parse(previous))}catch(e){}
+  }
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+function money(n){return new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:0}).format(Number(n)||0)+' Kč'}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function bytesToB64(bytes){
+  let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s);
+}
+function b64ToBytes(s){
+  return Uint8Array.from(atob(s), c=>c.charCodeAt(0));
+}
+async function derivePassword(password, saltBytes){
+  const enc=new TextEncoder();
+  const material=await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
+  );
+  const bits=await crypto.subtle.deriveBits(
+    {name:'PBKDF2', salt:saltBytes, iterations:120000, hash:'SHA-256'},
+    material, 256
+  );
+  return bytesToB64(new Uint8Array(bits));
+}
+function authRecord(){
+  try{return JSON.parse(localStorage.getItem(AUTH_KEY))}catch(e){return null}
+}
+function initAuthScreen(){
+  const hasAuth=!!authRecord();
+  document.getElementById('setupBox').classList.toggle('hidden',hasAuth);
+  document.getElementById('loginBox').classList.toggle('hidden',!hasAuth);
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+}
+async function createAccount(){
+  const username=document.getElementById('setupUser').value.trim();
+  const pass=document.getElementById('setupPass').value;
+  const pass2=document.getElementById('setupPass2').value;
+  if(username.length<3)return alert('Login musí mít alespoň 3 znaky.');
+  if(pass.length<6)return alert('Heslo musí mít alespoň 6 znaků.');
+  if(pass!==pass2)return alert('Hesla se neshodují.');
+  const salt=crypto.getRandomValues(new Uint8Array(16));
+  const hash=await derivePassword(pass,salt);
+  localStorage.setItem(AUTH_KEY,JSON.stringify({username, salt:bytesToB64(salt), hash}));
+  document.getElementById('setupPass').value='';
+  document.getElementById('setupPass2').value='';
+  alert('Přístup byl nastaven. Nyní se přihlas.');
+  initAuthScreen();
+}
+async function login(){
+  const rec=authRecord();
+  if(!rec){initAuthScreen();return;}
+  const username=document.getElementById('loginUser').value.trim();
+  const password=document.getElementById('loginPass').value;
+  const hash=await derivePassword(password,b64ToBytes(rec.salt));
+  document.getElementById('loginPass').value='';
+  if(username===rec.username && hash===rec.hash){
+    sessionStorage.setItem('aba_unlocked','1');
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    renderAll();
+  } else {
+    alert('Nesprávný login nebo heslo.');
+  }
+}
+function recoverAccess(){
+  const ok=confirm('Obnovit přístup? Smaže se pouze uložený login a heslo. Tikety, bankroll a ostatní data zůstanou zachovaná.');
+  if(!ok)return;
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginPass').value='';
+  initAuthScreen();
+  alert('Přístup byl obnoven. Nyní si nastav nový login a heslo.');
+}
+function logout(){
+  sessionStorage.removeItem('aba_unlocked');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login').classList.remove('hidden');
+  initAuthScreen();
+}
+window.addEventListener('pageshow',()=>{
+  sessionStorage.removeItem('aba_unlocked');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login').classList.remove('hidden');
+  initAuthScreen();
+});
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+function showView(v){
+  document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById('view-'+v).classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  if(v==='dashboard')renderDashboard(); if(v==='history')renderHistory(); if(v==='watchlist')renderWatchlist(); if(v==='analyses')renderAnalyses(); if(v==='stats')renderStats(); if(v==='settings')renderSettings(); if(v==='new')startDraft();
+}
+function summary(){
+  let profit=0,wins=0,losses=0,settledStake=0,open=0;
+  data.tickets.forEach(t=>{
+    if(['Otevřený','Rozpracovaný'].includes(t.status))open++;
+    if(t.status==='Výherní'){profit+=(effectivePayout(t)-Number(t.stake||0));wins++;settledStake+=Number(t.stake||0)}
+    if(t.status==='Proherní'){profit-=Number(t.stake||0);losses++;settledStake+=Number(t.stake||0)}
+    if(t.status==='Vrácený'){profit+=(effectivePayout(t)-Number(t.stake||0));settledStake+=Number(t.stake||0)}
+    if(t.status==='Cash Out'){profit+=(effectivePayout(t)-Number(t.stake||0));settledStake+=Number(t.stake||0)}
+  });
+  return {profit,current:data.settings.startingBankroll+profit+Number(data.settings.bankrollAdjustment||0),roi:settledStake?profit/settledStake*100:0,success:(wins+losses)?wins/(wins+losses)*100:0,open};
+}
+
+function todayProfit(){
+ const today=new Date().toISOString().slice(0,10);
+ return data.tickets
+   .filter(t=>t.date===today && ['Výherní','Proherní','Vrácený','Cash Out'].includes(t.status))
+   .reduce((sum,t)=>sum+ticketProfit(t),0);
+}
+function bankrollMetrics(){
+ const series=bankrollSeries();
+ const values=series.map(x=>Number(x.value||0));
+ const current=values.length?values[values.length-1]:Number(data.settings.startingBankroll||200000);
+ const maximum=values.length?Math.max(...values):current;
+ return {current,maximum,drawdown:current-maximum};
+}
+
+
+
+const DASH_ICONS={
+ wallet:`<svg viewBox="0 0 24 24"><path d="M4 7h14a2 2 0 0 1 2 2v10H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h12v3"/><path d="M16 12h5v4h-5a2 2 0 0 1 0-4z"/></svg>`,
+ calendar:`<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M8 14h2M14 14h2M8 18h2M14 18h2"/></svg>`,
+ roi:`<svg viewBox="0 0 24 24"><path d="M12 3v9h9A9 9 0 1 1 12 3z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>`,
+ high:`<svg viewBox="0 0 24 24"><path d="M4 17 9 12l4 3 7-9"/><path d="M15 6h5v5"/></svg>`,
+ pulse:`<svg viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></svg>`,
+ trophy:`<svg viewBox="0 0 24 24"><path d="M8 4h8v4a4 4 0 0 1-8 0z"/><path d="M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4M12 12v5M8 21h8M9 17h6"/></svg>`,
+ bars:`<svg viewBox="0 0 24 24"><path d="M5 20V11M10 20V5M15 20v-7M20 20V8"/></svg>`,
+ ticket:`<svg viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 0 0 4v6h16v-6a2 2 0 0 0 0-4V5H4z"/><path d="M9 8h6M9 12h6"/></svg>`,
+ check:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></svg>`,
+ cross:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg>`,
+ target:`<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>`,
+ coins:`<svg viewBox="0 0 24 24"><ellipse cx="9" cy="6" rx="5" ry="2.5"/><path d="M4 6v4c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5V6"/><path d="M4 10v4c0 1.4 2.2 2.5 5 2.5 1.1 0 2.1-.2 3-.5"/><ellipse cx="16" cy="15" rx="4" ry="2"/><path d="M12 15v3c0 1.1 1.8 2 4 2s4-.9 4-2v-3"/></svg>`
+};
+
+
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const m=document.getElementById('codexModal');
+  if(m){
+    m.hidden=true;
+    m.classList.remove('open');
+    m.setAttribute('aria-hidden','true');
+  }
+});
+
+function openCodex(){
+  const m=document.getElementById('codexModal');
+  if(!m)return;
+  m.hidden=false;
+  m.classList.add('open');
+  m.setAttribute('aria-hidden','false');
+  document.body.classList.add('codex-open');
+  m.scrollTop=0;
+}
+function closeCodex(){
+  const m=document.getElementById('codexModal');
+  if(!m)return;
+  m.classList.remove('open');
+  m.setAttribute('aria-hidden','true');
+  m.hidden=true;
+  document.body.classList.remove('codex-open');
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeCodex()});
+
+function dashboardAverageOdds(){
+ const rows=settledTickets().filter(t=>Number(t.totalOdds)>0);
+ return rows.length?rows.reduce((s,t)=>s+Number(t.totalOdds),0)/rows.length:0;
+}
+function dashboardCounts(){
+ const settled=settledTickets();
+ return {
+   total:data.tickets.length,
+   wins:settled.filter(t=>t.status==='Výherní').length,
+   losses:settled.filter(t=>t.status==='Proherní').length
+ };
+}
+
+
+
+function safeChartDate(value){
+  if(!value)return null;
+  const s=String(value);
+  const iso=s.length>=10?s.slice(0,10):s;
+  const d=new Date(iso+'T12:00:00');
+  return Number.isNaN(d.getTime())?null:d;
+}
+
+let dashboardChartRange='1R';
+function setDashboardChartRange(range){
+  dashboardChartRange=range;
+  renderDashboard();
+}
+function dashboardRangeButtons(){
+  return ['7D','30D','90D','1R','VŠE'].map(r=>
+    `<button type="button" class="${dashboardChartRange===r?'active':''}" onclick="setDashboardChartRange('${r}')">${r}</button>`
+  ).join('');
+}
+
+function renderDashboard(){
+ const s=summary(),today=todayProfit(),bm=bankrollMetrics(),avg=dashboardAverageOdds(),counts=dashboardCounts(),el=document.getElementById('view-dashboard');
+ const kpi=(l,v,i,c='')=>`<div class="dashboard-kpi"><div class="dashboard-label">${l}</div><div class="dashboard-value ${c}">${v}</div><span class="dashboard-icon">${DASH_ICONS[i]}</span></div>`;
+ const detail=(l,v,i,c='')=>`<div class="dashboard-detail-card"><div class="dashboard-label">${l}</div><div class="dashboard-detail-value ${c}">${v}</div><span class="dashboard-detail-icon">${DASH_ICONS[i]}</span></div>`;
+ const mini=(l,v,i,c='')=>`<div class="dashboard-summary-item"><span class="dashboard-mini-icon">${DASH_ICONS[i]}</span><div class="dashboard-label">${l}</div><div class="dashboard-summary-value ${c}">${v}</div></div>`;
+ const book=`<svg viewBox="0 0 24 24"><path d="M3 5.5A3.5 3.5 0 0 1 6.5 2H11v18H6.5A3.5 3.5 0 0 0 3 23z"/><path d="M21 5.5A3.5 3.5 0 0 0 17.5 2H13v18h4.5A3.5 3.5 0 0 1 21 23z"/><path d="M6 7h3M15 7h3M6 11h3M15 11h3"/></svg>`;
+ el.innerHTML=`<div class="dashboard-shell">
+ <div class="dashboard-title-wrap">
+ <div><h2 class="dashboard-title">Dashboard</h2><div class="small" style="color:var(--teal)!important">Nejsem lovec sázek, jsem správce kapitálu.</div></div>
+ <button class="dashboard-analysis-link" type="button" onclick="showView('analyses')"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h7"/><path d="m15 13 2 2 3-4"/></svg><span>Analýzy (${data.analyses.length})</span></button>
+ </div>
+ <div class="dashboard-kpi-grid">${kpi('Bankroll',money(s.current),'wallet')}${kpi('Dnes',`${today>=0?'+':''}${money(today)}`,'calendar',today>=0?'pos':'neg')}${kpi('ROI',`${s.roi.toFixed(2)} %`,'roi',s.roi>=0?'pos':'neg')}</div>
+ <div class="dashboard-main-grid">
+   <div class="dashboard-main-left">
+     <div class="dashboard-chart">
+       <div class="dashboard-chart-head"><h3>Vývoj bankrollu</h3><div class="chart-range">${dashboardRangeButtons()}</div></div>
+       ${bankrollChart()}
+     </div>
+     <div class="dashboard-detail-grid">${detail('Nejvyšší bankroll',money(bm.maximum),'high')}${detail('Aktuální stav',money(bm.current),'pulse')}${detail('Rozdíl od maxima',`${bm.drawdown>=0?'+':''}${money(bm.drawdown)}`,'trophy',bm.drawdown>=0?'pos':'neg')}${detail('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}</div>
+     <div class="dashboard-summary-grid">${mini('Počet tiketů',counts.total,'ticket')}${mini('Výhry',counts.wins,'check','pos')}${mini('Prohry',counts.losses,'cross','neg')}${mini('Úspěšnost',`${s.success.toFixed(2)} %`,'target')}${mini('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}${mini('Profit',`${s.profit>=0?'+':''}${money(s.profit)}`,'coins',s.profit>=0?'pos':'neg')}</div>
+   </div>
+   <aside class="dashboard-codex-link">
+     <span class="book-icon">${book}</span>
+     <div class="quote">„Nejsem lovec výher.<br>Jsem správce kapitálu.“</div>
+     <button type="button" onclick="openCodex()">Zobrazit Kodex →</button>
+   </aside>
+ </div>
+
+ <div class="dashboard-analysis-card">
+   <div>
+     <strong>📚 Databáze analýz</strong>
+     <div class="small">${data.analyses.length} uložených analýz${data.analyses[0]?` • Poslední: ${esc(data.analyses[0].match)}`:''}</div>
+   </div>
+   <button type="button" onclick="showView('analyses')">Otevřít databázi →</button>
+ </div>
+ </div>`;
+}
+function card(k,v,c=''){return `<div class="card"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`}
+function ticketTable(list){
+ return `<div class="table-wrap"><table><thead><tr><th>Tiket</th><th>Datum</th><th>Zápasů</th><th>Kurz</th><th>Vklad</th><th>Výplata</th><th>Stav</th></tr></thead><tbody>
+ ${list.map(t=>`<tr onclick="openTicket('${t.id}')" style="cursor:pointer"><td>${esc(t.id)}</td><td>${esc(t.date)}</td><td>${t.matches.length}</td><td>${Number(t.totalOdds).toFixed(2)}</td><td>${money(t.stake)}</td><td>${money(effectivePayout(t))}</td><td>${esc(t.status)}</td></tr>`).join('')}
+ </tbody></table></div>`;
+}
+function nextId(){
+ const y=new Date().getFullYear();
+ const nums=data.tickets
+   .map(t=>String(t.id||'').match(new RegExp(`^${y}\s*-\s*(\d+)$`)))
+   .filter(Boolean)
+   .map(m=>Number(m[1]))
+   .filter(Number.isFinite);
+ const n=(nums.length?Math.max(...nums):0)+1;
+ return `${y} - ${String(n).padStart(6,'0')}`;
+}
+function startDraft(){
+ draft={id:nextId(),date:new Date().toISOString().slice(0,10),stake:0,totalOdds:1,payout:0,status:'Otevřený',note:'',matches:[{name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null}]};
+ renderDraft();
+}
+function renderDraft(){
+ const el=document.getElementById('view-new');
+ el.innerHTML=`<h2>Nový tiket</h2><div class="ticket-head">
+ ${field('Datum',`<input id="d-date" value="${draft.date}">`)}
+ ${field('Vklad',`<input id="d-stake" inputmode="decimal" value="${draft.stake}">`)}
+ ${field('Poznámka k tiketu',`<input id="d-note" value="${esc(draft.note)}">`)}
+ </div>
+ <div class="toolbar" style="margin-top:12px"><strong>Celkový kurz: <span id="d-total">${calcDraft().toFixed(2)}</span></strong><strong>Možná výhra: <span id="d-possible">${money(calcDraft()*Number(draft.stake||0))}</span></strong></div>
+ <div id="matches">${draft.matches.map((m,i)=>matchEditor(m,i)).join('')}</div>
+ <div class="row-actions"><button class="secondary" onclick="addMatch()">+ Přidat zápas</button><button class="primary" onclick="saveDraft()">Uložit tiket</button></div>`;
+ document.getElementById('d-date').oninput=e=>draft.date=e.target.value;
+ document.getElementById('d-stake').oninput=e=>{draft.stake=Number(e.target.value.replace(',','.'))||0;updateDraftTotals()};
+ document.getElementById('d-note').oninput=e=>draft.note=e.target.value;
+}
+function field(label,html){return `<div><label>${label}</label>${html}</div>`}
+function competitionOptions(selectedCountry='',selectedLeague=''){
+ const groups={};
+ COMPETITIONS.forEach(x=>{
+   if(!groups[x.country])groups[x.country]={flag:x.flag||'',leagues:[]};
+   groups[x.country].leagues.push(x.league);
+ });
+ return `<option value="">Vyber stát / soutěž</option>`+Object.entries(groups).map(([country,group])=>
+   `<optgroup label="${esc((group.flag?group.flag+' ':'')+country)}">${group.leagues.map(league=>{
+      const value=country+'||'+league;
+      const label=country==='Evropské poháry'?'🏆 '+league:country;
+      return `<option value="${esc(value)}" ${country===selectedCountry&&league===selectedLeague?'selected':''}>${esc(label)}</option>`;
+   }).join('')}</optgroup>`).join('');
+}
+function euroIcon(value){
+ if(value==='home')return '🏆🏠';
+ if(value==='away')return '🏆✈️';
+ if(value==='both')return '🏆🏠 🏆✈️';
+ return '';
+}
+function setCompetition(i,value){
+ const parts=value.split('||'); draft.matches[i].country=parts[0]||''; draft.matches[i].league=parts[1]||'';
+}
+
+function betTypeOptions(selectedCategory='',selectedType=''){
+ const groups={};
+ BET_TYPES.forEach(x=>{if(!groups[x.category])groups[x.category]=[];groups[x.category].push(x.type)});
+ return `<option value="">Vyber typ sázky</option>`+Object.entries(groups).map(([category,types])=>
+   `<optgroup label="${esc(category)}">${types.map(type=>{
+      const value=category+'||'+type;
+      return `<option value="${esc(value)}" ${category===selectedCategory&&type===selectedType?'selected':''}>${esc(type)}</option>`;
+   }).join('')}</optgroup>`).join('');
+}
+function setBetType(i,value){
+ const parts=value.split('||');
+ draft.matches[i].betCategory=parts[0]||'';
+ draft.matches[i].betType=parts[1]||'';
+}
+
+
+function normalizeTeamName(value){
+ return String(value||'')
+   .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+   .toLowerCase()
+   .replace(/[–—]/g,'-')
+   .replace(/\b(fc|fk|sk|ac|cf|sc|afc|rc|nk|ifk|bk|cd|ud|club|fotbal|football)\b/g,' ')
+   .replace(/[^a-z0-9]+/g,' ')
+   .replace(/\s+/g,' ')
+   .trim();
+}
+function splitMatchTeams(value){
+ const raw=String(value||'').replace(/[–—]/g,'-');
+ const parts=raw.split(/\s+-\s+/).map(x=>x.trim()).filter(Boolean);
+ return parts.length>=2?[parts[0],parts.slice(1).join(' - ')]:[raw.trim(),''];
+}
+function teamTokens(value){
+ return normalizeTeamName(value).split(' ').filter(x=>x.length>1 && !['the','de','la','el'].includes(x));
+}
+function teamNamesMatch(a,b){
+ const na=normalizeTeamName(a), nb=normalizeTeamName(b);
+ if(!na||!nb)return false;
+ if(na===nb || na.includes(nb) || nb.includes(na))return true;
+ const ta=teamTokens(a), tb=teamTokens(b);
+ const common=ta.filter(x=>tb.includes(x));
+ return common.length>=1 && (common.join('').length>=4 || common.length>=2);
+}
+function matchingAnalyses(name){
+ const [ticketHome,ticketAway]=splitMatchTeams(name);
+ if(!ticketHome)return [];
+ return data.analyses.filter(a=>{
+   const [analysisHomeFromMatch,analysisAwayFromMatch]=splitMatchTeams(a.match||'');
+   const home=a.homeTeam||analysisHomeFromMatch;
+   const away=a.awayTeam||analysisAwayFromMatch;
+   return teamNamesMatch(ticketHome,home) && teamNamesMatch(ticketAway,away);
+ });
+}
+function analysisOption(a,selected){
+ const id=a.abaId||a.id;
+ return `<option value="${esc(id)}" ${String(selected||'')===String(id)?'selected':''}>${esc(a.abaId||'')} • ${esc(a.match||'Analýza')} • ${esc(a.recommendation||'')}</option>`;
+}
+function analysisLinkOptions(matchName,selected){
+ const matches=matchingAnalyses(matchName);
+ const matchIds=new Set(matches.map(a=>String(a.abaId||a.id)));
+ const others=(data.analyses||[]).filter(a=>!matchIds.has(String(a.abaId||a.id)));
+ let html='<option value="">Bez propojení</option>';
+ if(matches.length)html+=`<optgroup label="Odpovídající analýzy">${matches.map(a=>analysisOption(a,selected)).join('')}</optgroup>`;
+ if(others.length)html+=`<optgroup label="Všechny ostatní analýzy">${others.map(a=>analysisOption(a,selected)).join('')}</optgroup>`;
+ return html;
+}
+
+function updateLinkedAnalysisAfterName(i){
+  const match=draft.matches[i];
+  if(!match)return;
+  const previous=match.linkedAnalysisId;
+  const rows=matchingAnalyses(match.name);
+  const valid=rows.some(a=>String(a.abaId||a.id)===String(previous));
+  if(!valid)match.linkedAnalysisId=null;
+  const select=document.getElementById(`linked-analysis-${i}`);
+  const note=document.getElementById(`linked-analysis-note-${i}`);
+  if(select)select.innerHTML=analysisLinkOptions(match.name,match.linkedAnalysisId);
+  if(note){
+    note.textContent=rows.length
+      ? `ABA našla ${rows.length} odpovídající ${rows.length===1?'analýzu':'analýzy'}.`
+      : 'Pro tento název zápasu zatím nebyla nalezena analýza.';
+  }
+}
+
+function setLinkedAnalysis(i,value){
+ draft.matches[i].linkedAnalysisId=value||null;
+}
+
+let analysisPickerContext=null;
+function linkedAnalysisLabel(id){
+ const a=analysisById(id);
+ return a?`${a.match||'Analýza'} — ${a.recommendation||''}`:'Bez propojení';
+}
+function analysisPickerButton(matchName,selected,contextType,ticketId,index){
+ const label=linkedAnalysisLabel(selected);
+ const safeTicket=ticketId==null?'':String(ticketId);
+ const encodedMatch=encodeURIComponent(String(matchName||''));
+ return `<button type="button" class="analysis-picker-button" onclick="openAnalysisPicker('${contextType}','${esc(safeTicket)}',${Number(index)},decodeURIComponent('${encodedMatch}'))"><span>${esc(label)}</span><span>Vybrat ▾</span></button>`;
+}
+function openAnalysisPicker(contextType,ticketId,index,matchName){
+ analysisPickerContext={contextType,ticketId,index,matchName};
+ const overlay=document.getElementById('analysisPickerOverlay');
+ const list=document.getElementById('analysisPickerList');
+ const subtitle=document.getElementById('analysisPickerSubtitle');
+ if(!overlay||!list)return;
+ const matching=matchingAnalyses(matchName);
+ const matchingIds=new Set(matching.map(a=>String(a.abaId||a.id)));
+ const others=(data.analyses||[]).filter(a=>!matchingIds.has(String(a.abaId||a.id)));
+ subtitle.textContent=matchName||'';
+ const item=(a,isMatch)=>`<button type="button" class="analysis-picker-item ${isMatch?'analysis-picker-match':''}" onclick="chooseLinkedAnalysis(${JSON.stringify(String(a.abaId||a.id))})"><strong>${esc(a.match||'Analýza')}</strong><span class="small">${esc(a.recommendation||'')} • ${esc(a.abaId||'')}</span></button>`;
+ let html=`<button type="button" class="analysis-picker-item" onclick="chooseLinkedAnalysis('')"><strong>Bez propojení</strong><span class="small">Odstranit propojení analýzy.</span></button>`;
+ if(matching.length)html+=`<div class="analysis-picker-section">Odpovídající analýzy</div>${matching.map(a=>item(a,true)).join('')}`;
+ if(others.length)html+=`<div class="analysis-picker-section">Všechny ostatní analýzy</div>${others.map(a=>item(a,false)).join('')}`;
+ if(!matching.length&&!others.length)html+=`<div class="small" style="padding:14px">Nejsou uloženy žádné analýzy.</div>`;
+ list.innerHTML=html;
+ overlay.hidden=false;overlay.setAttribute('aria-hidden','false');
+}
+function closeAnalysisPicker(){
+ const overlay=document.getElementById('analysisPickerOverlay');
+ if(overlay){overlay.hidden=true;overlay.setAttribute('aria-hidden','true')}
+ analysisPickerContext=null;
+}
+function chooseLinkedAnalysis(value){
+ const c=analysisPickerContext;if(!c)return;
+ if(c.contextType==='draft'){
+   if(draft&&draft.matches[c.index])draft.matches[c.index].linkedAnalysisId=value||null;
+   saveData();renderDraft();
+ }else{
+   const t=data.tickets.find(x=>String(x.id)===String(c.ticketId));
+   if(t&&t.matches[c.index]){t.matches[c.index].linkedAnalysisId=value||null;saveData();openTicket(t.id)}
+ }
+ closeAnalysisPicker();
+}
+
+function analysisById(id){
+ return data.analyses.find(a=>String(a.abaId||'')===String(id)||String(a.id)===String(id))||null;
+}
+function syncAnalysisLinksForTicket(ticket){
+ ticket.matches.forEach(m=>{
+   if(!m.linkedAnalysisId)return;
+   const a=analysisById(m.linkedAnalysisId);
+   if(a){
+     a.linkedTicketId=ticket.id;
+     a.linkedMatchName=m.name;
+   }
+ });
+}
+function syncLinkedAnalysisEvaluation(ticket,match){
+ if(!match.linkedAnalysisId)return;
+ const a=analysisById(match.linkedAnalysisId);
+ if(!a)return;
+ a.linkedTicketId=ticket.id;
+ a.linkedMatchName=match.name;
+ if(match.result)a.actualScore=match.result;
+ if(match.status==='Vyšla'){
+   a.evaluation='Úspěšná';a.resultStatus='Úspěšná';
+ }else if(match.status==='Nevyšla'){
+   a.evaluation='Neúspěšná';a.resultStatus='Neúspěšná';
+ }else if(match.status==='Vrácena'){
+   a.evaluation='Částečně úspěšná';a.resultStatus='Částečně úspěšná';
+ }
+}
+
+function matchEditor(m,i){
+ return `<div class="match-card"><strong>Zápas ${i+1} ${euroIcon(m.euroLoad)?`<span class="icon-badge">${euroIcon(m.euroLoad)}</span>`:''}</strong>
+ <div class="grid3">
+ ${field('Název zápasu',`<input value="${esc(m.name)}" oninput="setMatch(${i},'name',this.value)" onblur="updateLinkedAnalysisAfterName(${i})">`)}
+ ${field('Tip',`<input value="${esc(m.pick)}" oninput="setMatch(${i},'pick',this.value)">`)}
+ ${field('Kurz',`<input inputmode="decimal" value="${m.odds}" oninput="setMatch(${i},'odds',this.value)">`)}
+ </div>
+ <div class="grid3" style="margin-top:8px">
+ ${field('Typ sázky',`<select onchange="setBetType(${i},this.value)">${betTypeOptions(m.betCategory,m.betType)}</select>`)}
+ ${field('Země / soutěž',`<select onchange="setCompetition(${i},this.value)">${competitionOptions(m.country,m.league)}</select>`)}
+ ${field('Evropský pohár v týdnu',`<select onchange="setMatch(${i},'euroLoad',this.value)">
+   <option value="none" ${m.euroLoad==='none'?'selected':''}>Nikdo</option>
+   <option value="home" ${m.euroLoad==='home'?'selected':''}>🏆 Domácí tým</option>
+   <option value="away" ${m.euroLoad==='away'?'selected':''}>🏆 Hostující tým</option>
+   <option value="both" ${m.euroLoad==='both'?'selected':''}>🏆 Oba týmy</option>
+ </select>`)}
+ </div>
+ ${field('Poznámka',`<textarea oninput="setMatch(${i},'note',this.value)">${esc(m.note)}</textarea>`)}
+ <div class="analysis-ticket-link">
+   <label>Propojená analýza</label>
+   ${analysisPickerButton(m.name,m.linkedAnalysisId,'draft','',i)}
+   <div id="linked-analysis-note-${i}" class="small" style="margin-top:5px">${matchingAnalyses(m.name).length?`ABA našla ${matchingAnalyses(m.name).length} odpovídající ${matchingAnalyses(m.name).length===1?'analýzu':'analýzy'}.`:'Po zadání názvu zápasu ABA nabídne odpovídající analýzu.'}</div>
+ </div>
+ ${draft.matches.length>1?`<button class="danger" onclick="removeMatch(${i})">Odebrat zápas</button>`:''}</div>`;
+}
+function setMatch(i,k,v){
+ draft.matches[i][k]=k==='odds'?(Number(String(v).replace(',','.'))||1):v;
+ if(k==='odds')updateDraftTotals();
+}
+function calcDraft(){return draft.matches.reduce((p,m)=>p*(Number(m.odds)||1),1)}
+function updateDraftTotals(){const t=calcDraft();document.getElementById('d-total').textContent=t.toFixed(2);document.getElementById('d-possible').textContent=money(t*Number(draft.stake||0))}
+function addMatch(){draft.matches.push({name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null});renderDraft()}
+function removeMatch(i){draft.matches.splice(i,1);renderDraft()}
+function saveDraft(){
+ if(!draft.date||draft.matches.some(m=>!m.name.trim()||!m.pick.trim()))return alert('Doplň datum, název zápasu a tip.');
+ if(Number(draft.stake||0)<0)return alert('Vklad nesmí být záporný.');
+ if(draft.matches.some(m=>Number(m.odds||0)<=0))return alert('Každý kurz musí být větší než nula.');
+ draft.totalOdds=calcDraft();
+ const savedTicket=structuredClone(draft);
+ // Druhá pojistka: duplicitní ID se nesmí uložit ani v případě starých/migrovaných dat.
+ if(data.tickets.some(t=>String(t.id)===String(savedTicket.id))){
+   savedTicket.id=nextId();
+   draft.id=savedTicket.id;
+ }
+ data.tickets.push(savedTicket);syncAnalysisLinksForTicket(savedTicket);saveData();alert('Tiket uložen.');showView('history');
+}
+function renderHistory(){
+ const el=document.getElementById('view-history');
+ el.innerHTML=`<h2>Historie tiketů</h2><div class="toolbar"><input id="search" placeholder="Hledat podle týmu nebo tipu"></div><div id="hist"></div>`;
+ const inp=document.getElementById('search');inp.oninput=()=>drawHistory(inp.value);drawHistory('');
+}
+function drawHistory(q){
+ q=q.toLowerCase().trim();
+ const list=data.tickets.filter(t=>!q||t.id.toLowerCase().includes(q)||t.date.includes(q)||t.matches.some(m=>(m.name+' '+m.pick+' '+m.note).toLowerCase().includes(q)));
+ document.getElementById('hist').innerHTML=ticketTable(list.slice().reverse());
+}
+
+function suggestedTicketStatus(t){
+  const statuses=t.matches.map(m=>m.status);
+  if(!statuses.length)return 'Rozpracovaný';
+  if(statuses.some(s=>s==='Nevyšla'))return 'Proherní';
+  if(statuses.every(s=>s==='Vyšla'||s==='Vrácena')){
+    return statuses.every(s=>s==='Vrácena')?'Vrácený':'Výherní';
+  }
+  if(statuses.some(s=>s==='Vyšla'||s==='Vrácena'))return 'Otevřený';
+  return 'Rozpracovaný';
+}
+function syncTicketFromMatches(id, showMessage=true){
+  const t=data.tickets.find(x=>String(x.id)===String(id));
+  if(!t)return;
+  const suggested=suggestedTicketStatus(t);
+  t.status=suggested;
+  if(suggested==='Výherní'){
+    t.payout=Number(t.stake||0)*Number(t.totalOdds||1);
+  }else if(suggested==='Vrácený'){
+    t.payout=Number(t.stake||0);
+  }else if(suggested==='Proherní'){
+    t.payout=0;
+  }
+  saveData();
+  if(showMessage)alert(`Tiket byl vyhodnocen jako: ${suggested}`);
+}
+function ticketStatusWarning(t){
+  const suggested=suggestedTicketStatus(t);
+  if(t.status===suggested)return '';
+  return `<div class="viz-callout" style="margin:12px 0">
+    Stav zápasů naznačuje: <strong>${suggested}</strong>, ale tiket je veden jako <strong>${esc(t.status)}</strong>.
+  </div>`;
+}
+
+
+function deleteTicket(id){
+  const ticket=data.tickets.find(t=>String(t.id)===String(id));
+  if(!ticket)return;
+
+  const label=ticket.matches?.map(m=>m.name).filter(Boolean).join(', ')||'tento tiket';
+  if(!confirm(`Opravdu smazat tiket?\n\n${label}\n\nTuto akci nelze vrátit zpět.`))return;
+
+  // Remove reverse links from analyses.
+  data.analyses.forEach(a=>{
+    if(String(a.linkedTicketId)===String(ticket.id)){
+      a.linkedTicketId=null;
+      a.linkedMatchName='';
+    }
+  });
+
+  data.tickets=data.tickets.filter(t=>String(t.id)!==String(id));
+  saveData();
+  renderAll();
+  showView('history');
+}
+
+function openTicket(id){
+ const t=data.tickets.find(x=>String(x.id)===String(id)); if(!t)return;
+ document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));
+ const el=document.getElementById('view-history');el.classList.remove('hidden');
+ el.innerHTML=`<h2>Tiket ${esc(t.id)}</h2>${ticketStatusWarning(t)}<div class="ticket-head">
+ ${field('Datum',`<input value="${t.date}" onchange="editTicket('${id}','date',this.value)">`)}
+ ${field('Vklad',`<input inputmode="decimal" value="${t.stake}" onchange="editTicket('${id}','stake',this.value)">`)}
+ ${field('Celkový kurz',`<input inputmode="decimal" value="${t.totalOdds}" onchange="editTicket('${id}','totalOdds',this.value)">`)}
+ ${field('Skutečná výplata',`<input inputmode="decimal" value="${effectivePayout(t)}" onchange="editTicket('${id}','payout',this.value)">`)}
+ ${field('Profit / ztráta',`<input value="${money(ticketProfit(t))}" readonly>`)}
+ ${field('Stav',`<select onchange="editTicket('${id}','status',this.value)">${['Rozpracovaný','Otevřený','Výherní','Proherní','Cash Out','Vrácený','Storno'].map(s=>`<option ${s===t.status?'selected':''}>${s}</option>`).join('')}</select>`)}
+ ${field('Poznámka k tiketu',`<input value="${esc(t.note)}" onchange="editTicket('${id}','note',this.value)">`)}
+ </div>
+ <div class="row-actions" style="margin:14px 0">
+   <button class="primary" onclick="syncTicketFromMatches('${t.id}');openTicket('${t.id}')">Vyhodnotit tiket podle zápasů</button>
+   <span class="small">ABA zkontroluje jednotlivé zápasy, dopočítá stav tiketu a výplatu.</span>
+ </div>
+ <div style="margin-top:16px">${t.matches.map((m,i)=>matchDetail(t,i)).join('')}</div>
+ <button class="secondary" onclick="renderHistory()">← Zpět do historie</button>`;
+}
+function matchDetail(t,i){
+ const m=t.matches[i];
+ const matching=matchingAnalyses(m.name);
+ return `<div class="match-card">
+ <div class="match-card-title">${esc(m.name)} ${euroIcon(m.euroLoad)?`<span class="icon-badge">${euroIcon(m.euroLoad)}</span>`:''}</div>
+ <div class="grid3">
+ ${field('Tip',`<input value="${esc(m.pick)}" onchange="editMatch('${t.id}',${i},'pick',this.value)">`)}
+ ${field('Kurz',`<input inputmode="decimal" value="${m.odds}" onchange="editMatch('${t.id}',${i},'odds',this.value)">`)}
+ ${field('Výsledek',`<input value="${esc(m.result)}" onchange="editMatch('${t.id}',${i},'result',this.value)">`)}
+ </div>
+ <div class="grid3" style="margin-top:8px">
+ ${field('Typ sázky',`<select onchange="editBetType('${t.id}',${i},this.value)">${betTypeOptions(m.betCategory,m.betType)}</select>`)}
+ ${field('Země / soutěž',`<select onchange="editCompetition('${t.id}',${i},this.value)">${competitionOptions(m.country,m.league)}</select>`)}
+ ${field('Evropský pohár v týdnu',`<select onchange="editMatch('${t.id}',${i},'euroLoad',this.value)">
+   <option value="none" ${m.euroLoad==='none'?'selected':''}>Nikdo</option>
+   <option value="home" ${m.euroLoad==='home'?'selected':''}>🏆 Domácí tým</option>
+   <option value="away" ${m.euroLoad==='away'?'selected':''}>🏆 Hostující tým</option>
+   <option value="both" ${m.euroLoad==='both'?'selected':''}>🏆 Oba týmy</option>
+ </select>`)}
+ ${field('Stav zápasu',`<select onchange="editMatch('${t.id}',${i},'status',this.value)">${['Čeká','Vyšla','Nevyšla','Vrácena'].map(s=>`<option ${s===m.status?'selected':''}>${s}</option>`).join('')}</select>`)}
+ </div>
+ ${field('Poznámka',`<textarea onchange="editMatch('${t.id}',${i},'note',this.value)">${esc(m.note)}</textarea>`)}
+ <div class="history-analysis-link">
+   ${field('Propojená analýza',analysisPickerButton(m.name,m.linkedAnalysisId,'history',t.id,i))}
+   <div class="small">${matching.length
+     ?`ABA našla ${matching.length} odpovídající ${matching.length===1?'analýzu':'analýzy'}.`
+     :'Pro tento zápas zatím nebyla nalezena uložená analýza.'}</div>
+   <div id="analysis-link-confirmation-${t.id}-${i}" class="analysis-link-confirmation">
+     ${m.linkedAnalysisId?`✓ Propojeno s analýzou ${esc(m.linkedAnalysisId)}`:''}
+   </div>
+ </div>
+ <div class="ticket-delete-zone">
+  <button type="button" class="ticket-delete-button" onclick="deleteTicket('${t.id}')">🗑️ Smazat tiket</button>
+</div>
+</div>`;
+}
+function editBetType(id,i,value){
+ const t=data.tickets.find(x=>String(x.id)===String(id));
+ const parts=value.split('||');
+ t.matches[i].betCategory=parts[0]||'';
+ t.matches[i].betType=parts[1]||'';
+ saveData();
+}
+function editCompetition(id,i,value){const t=data.tickets.find(x=>String(x.id)===String(id));const parts=value.split('||');t.matches[i].country=parts[0]||'';t.matches[i].league=parts[1]||'';saveData()}
+function editTicket(id,k,v){
+ const t=data.tickets.find(x=>String(x.id)===String(id));
+ t[k]=['stake','totalOdds','payout'].includes(k)?(Number(String(v).replace(',','.'))||0):v;
+ if(k==='status'){
+   if(v==='Výherní' && Number(t.payout||0)<=0){
+     t.payout=Number(t.stake||0)*Number(t.totalOdds||1);
+   }
+   if(v==='Vrácený' && Number(t.payout||0)<=0){
+     t.payout=Number(t.stake||0);
+   }
+   if(v==='Proherní'){
+     t.payout=0;
+   }
+ }
+ saveData();
+ renderDashboard();
+}
+function editMatch(id,i,k,v){
+ const t=data.tickets.find(x=>String(x.id)===String(id));
+ if(!t || !t.matches || !t.matches[i]){
+   alert('Tiket se nepodařilo najít. Obnov stránku a zkus změnu znovu.');
+   return;
+ }
+ t.matches[i][k]=k==='odds'?(Number(String(v).replace(',','.'))||1):v;
+
+ if(k==='linkedAnalysisId'){
+   // Remove previous reverse links for this ticket/match.
+   data.analyses.forEach(a=>{
+     if(String(a.linkedTicketId)===String(t.id) && a.linkedMatchName===t.matches[i].name){
+       a.linkedTicketId=null;
+       a.linkedMatchName='';
+     }
+   });
+
+   const linked=analysisById(v);
+   if(linked){
+     linked.linkedTicketId=t.id;
+     linked.linkedMatchName=t.matches[i].name;
+   }
+
+   saveData();
+   openTicket(t.id);
+   const confirmation=document.getElementById(`analysis-link-confirmation-${t.id}-${i}`);
+   if(confirmation){
+     confirmation.textContent=linked
+       ? `✓ Analýza ${linked.abaId||linked.id} je propojena s tímto zápasem.`
+       : 'Propojení analýzy bylo zrušeno.';
+   }
+   return;
+ }
+
+ syncLinkedAnalysisEvaluation(t,t.matches[i]);
+ saveData();
+
+ if(k==='status'){
+   const suggested=suggestedTicketStatus(t);
+   if(['Výherní','Proherní','Vrácený'].includes(suggested)){
+     syncTicketFromMatches(t.id,false);
+     syncLinkedAnalysisEvaluation(t,t.matches[i]);
+     saveData();
+   }
+ }
+}
+function renderWatchlist(){
+ const el=document.getElementById('view-watchlist');
+ el.innerHTML=`<h2>Zvažované zápasy</h2>
+ <div class="card" style="margin-bottom:14px">
+   <div class="grid3">
+     ${field('Datum',`<input id="w-date" value="${new Date().toISOString().slice(0,10)}">`)}
+     ${field('Zápas',`<input id="w-match" placeholder="např. AIK Stockholm – Örgryte">`)}
+     ${field('Zvažovaný tip',`<input id="w-pick" placeholder="např. AIK vyhraje">`)}
+   </div>
+   ${field('Poznámka',`<textarea id="w-note" placeholder="Proč jsi zápas zvažoval, rizika, důvody nevsazení..."></textarea>`)}
+   <div class="row-actions"><span></span><button class="primary" onclick="addConsidered()">Přidat zápas</button></div>
+ </div>
+ <div class="toolbar"><input id="w-search" placeholder="Hledat podle týmu nebo poznámky"></div>
+ <div id="w-list"></div>`;
+ document.getElementById('w-search').oninput=drawConsidered;
+ drawConsidered();
+}
+function addConsidered(){
+ const date=document.getElementById('w-date').value;
+ const match=document.getElementById('w-match').value.trim();
+ const pick=document.getElementById('w-pick').value.trim();
+ const note=document.getElementById('w-note').value.trim();
+ if(!date||!match)return alert('Doplň datum a název zápasu.');
+ data.consideredMatches.push({
+   id:Date.now().toString(),date,match,pick,note,status:'Zvažováno'
+ });
+ saveData();renderWatchlist();
+}
+function drawConsidered(){
+ const q=(document.getElementById('w-search')?.value||'').toLowerCase().trim();
+ const list=data.consideredMatches.filter(x=>!q||(x.match+' '+x.pick+' '+x.note+' '+x.status).toLowerCase().includes(q)).slice().reverse();
+ document.getElementById('w-list').innerHTML=`<div class="table-wrap"><table><thead><tr>
+ <th>Datum</th><th>Zápas</th><th>Tip</th><th>Stav</th><th>Poznámka</th><th></th></tr></thead><tbody>
+ ${list.map(x=>`<tr>
+ <td>${esc(x.date)}</td>
+ <td>${esc(x.match)}</td>
+ <td>${esc(x.pick)}</td>
+ <td><select onchange="editConsidered('${x.id}','status',this.value)">
+ ${['Zvažováno','Nevsazeno','Později vsazeno'].map(s=>`<option ${s===x.status?'selected':''}>${s}</option>`).join('')}
+ </select></td>
+ <td><textarea style="min-height:55px" onchange="editConsidered('${x.id}','note',this.value)">${esc(x.note)}</textarea></td>
+ <td><button class="danger" onclick="removeConsidered('${x.id}')">Odstranit</button></td>
+ </tr>`).join('')}
+ </tbody></table></div>`;
+}
+function editConsidered(id,key,value){
+ const x=data.consideredMatches.find(i=>i.id===id); if(!x)return;
+ x[key]=value; saveData();
+}
+function removeConsidered(id){
+ if(!confirm('Odstranit tento zvažovaný zápas?'))return;
+ data.consideredMatches=data.consideredMatches.filter(i=>i.id!==id);
+ saveData();drawConsidered();
+}
+
+function settledTickets(){
+ return data.tickets.filter(t=>['Výherní','Proherní','Vrácený','Cash Out'].includes(t.status))
+   .slice().sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
+}
+function effectivePayout(t){
+ const payout=Number(t.payout||0);
+ if(t.status==='Výherní' && payout<=0){
+   return Number(t.stake||0)*Number(t.totalOdds||1);
+ }
+ if(t.status==='Vrácený' && payout<=0){
+   return Number(t.stake||0);
+ }
+ return payout;
+}
+function ticketProfit(t){
+ if(t.status==='Výherní'||t.status==='Vrácený'||t.status==='Cash Out')return effectivePayout(t)-Number(t.stake||0);
+ if(t.status==='Proherní')return -Number(t.stake||0);
+ return 0;
+}
+const BANKROLL_BASELINE_DATE='2026-08-01';
+const BANKROLL_BASELINE_VALUE=100000;
+const BANKROLL_Y_STEP=20000;
+
+function bankrollSeries(){
+ let bank=BANKROLL_BASELINE_VALUE;
+ const rows=[{label:'1. 8.',date:BANKROLL_BASELINE_DATE,value:bank,isBaseline:true}];
+ settledTickets()
+   .filter(t=>String(t.date||'')>=BANKROLL_BASELINE_DATE)
+   .forEach(t=>{
+     bank+=ticketProfit(t);
+     rows.push({label:t.date,date:t.date,value:bank,id:t.id});
+   });
+ if(rows.length)rows[rows.length-1].value+=Number(data.settings.bankrollAdjustment||0);
+ return rows;
+}
+function bankrollChart(){
+ const all=bankrollSeries();
+ const todayIso=new Date().toISOString().slice(0,10);
+ const day=86400000;
+ const limits={ '7D':7,'30D':30,'90D':90,'1R':365 };
+ let pts=all.slice();
+
+ if(dashboardChartRange!=='VŠE' && limits[dashboardChartRange]){
+   const now=safeChartDate(todayIso);
+   const start=safeChartDate(BANKROLL_BASELINE_DATE);
+   const cutoffDate=new Date(now.getTime()-(limits[dashboardChartRange]-1)*day);
+   const effectiveCutoff=cutoffDate<start?start:cutoffDate;
+   const cutoffIso=effectiveCutoff.toISOString().slice(0,10);
+
+   // Hodnota na začátku období zachovává návaznost bankrollu.
+   let anchorValue=BANKROLL_BASELINE_VALUE;
+   all.forEach(p=>{ if(p.date<cutoffIso)anchorValue=Number(p.value||anchorValue); });
+   const inRange=all.filter(p=>p.date>=cutoffIso);
+   pts=[{label:cutoffIso,date:cutoffIso,value:anchorValue,isRangeAnchor:true},...inRange.filter(p=>p.date!==cutoffIso || Number(p.value)!==anchorValue)];
+ }
+
+ // Graf musí mít šířku i v období bez nového tiketu.
+ if(pts.length===1 && pts[0].date!==todayIso){
+   pts.push({label:todayIso,date:todayIso,value:pts[0].value,isToday:true});
+ }
+
+ const w=960,h=350,padL=92,padR=34,padT=30,padB=46;
+ const values=pts.map(p=>Number(p.value||0));
+ const min0=Math.min(...values),max0=Math.max(...values);
+ let min=Math.floor(min0/BANKROLL_Y_STEP)*BANKROLL_Y_STEP;
+ let max=Math.ceil(max0/BANKROLL_Y_STEP)*BANKROLL_Y_STEP;
+ if(min===max){min=Math.max(0,min-BANKROLL_Y_STEP);max+=BANKROLL_Y_STEP;}
+
+ const x=i=>padL+(pts.length<=1?0:i*(w-padL-padR)/(pts.length-1));
+ const y=v=>padT+(max-v)*(h-padT-padB)/(max-min||1);
+ const line=pts.map((p,i)=>`${x(i)},${y(Number(p.value||0))}`).join(' ');
+ const area=`${padL},${h-padB} ${line} ${x(pts.length-1)},${h-padB}`;
+
+ const yValues=[];
+ for(let val=max;val>=min;val-=BANKROLL_Y_STEP)yValues.push(val);
+ const gridY=yValues.map(val=>{
+   const yy=y(val);
+   return `<line class="bankroll-grid" x1="${padL}" y1="${yy}" x2="${w-padR}" y2="${yy}"/><text x="${padL-12}" y="${yy+4}" text-anchor="end">${money(val)}</text>`;
+ }).join('');
+
+ const maxLabels=7;
+ const labelStep=Math.max(1,Math.ceil(pts.length/maxLabels));
+ const labels=pts.map((p,i)=>{
+   if(i%labelStep!==0 && i!==pts.length-1)return '';
+   const d=safeChartDate(p.date);
+   return d?`<text x="${x(i)}" y="${h-13}" text-anchor="middle">${d.toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric'})}</text>`:'';
+ }).join('');
+
+ const todayX=w-padR;
+ const todayMarker=`<line x1="${todayX}" y1="${padT}" x2="${todayX}" y2="${h-padB}" stroke="#00D6D6" stroke-width="1" stroke-dasharray="5 5" opacity=".72"/><text x="${todayX-5}" y="${padT-8}" text-anchor="end" font-size="11">DNES</text>`;
+
+ return `<div class="chart-box">
+ <img class="chart-watermark" src="aba-watermark.png?v=0216" alt="">
+ <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Vývoj bankrollu">
+   <defs>
+     <linearGradient id="bankrollAreaGradient" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0%" stop-color="#00D6D6" stop-opacity=".46"/>
+       <stop offset="100%" stop-color="#00D6D6" stop-opacity=".05"/>
+     </linearGradient>
+   </defs>
+   ${gridY}
+   <polygon class="bankroll-area" points="${area}"/>
+   <polyline class="bankroll-line" points="${line}"/>
+   ${pts.map((p,i)=>`<circle class="bankroll-point" cx="${x(i)}" cy="${y(Number(p.value||0))}" r="${pts.length<20?3:1.6}"/>`).join('')}
+   ${labels}
+   ${todayMarker}
+ </svg>
+ </div>`;
+}
+function countryStats(){
+ const map={};
+ data.tickets.forEach(t=>t.matches.forEach(m=>{
+   if(!m.country||!['Vyšla','Nevyšla'].includes(m.status))return;
+   if(!map[m.country])map[m.country]={country:m.country,league:m.league,wins:0,losses:0};
+   if(m.status==='Vyšla')map[m.country].wins++; else map[m.country].losses++;
+ }));
+ return Object.values(map).map(x=>({...x,total:x.wins+x.losses,success:(x.wins/(x.wins+x.losses))*100}))
+   .sort((a,b)=>b.success-a.success);
+}
+function countryColor(success,total){
+ if(!total)return 'gray';
+ if(success>=65)return 'green';
+ if(success>=50)return 'yellow';
+ return 'red';
+}
+function dayStats(){
+ const names=['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'];
+ const out=names.map((name,i)=>({name,index:i,tickets:0,wins:0,losses:0,profit:0}));
+ settledTickets().forEach(t=>{
+   const d=new Date(t.date+'T12:00:00').getDay(), x=out[d];
+   x.tickets++; if(t.status==='Výherní')x.wins++; if(t.status==='Proherní')x.losses++; x.profit+=ticketProfit(t);
+ });
+ return [out[1],out[2],out[3],out[4],out[5],out[6],out[0]].map(x=>({...x,success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0}));
+}
+function winLossPanel(){
+ const wins=data.tickets.filter(t=>t.status==='Výherní').length;
+ const losses=data.tickets.filter(t=>t.status==='Proherní').length;
+ const total=Math.max(1,wins+losses);
+ return `<div class="chart-box">
+ <div style="display:grid;grid-template-columns:110px 1fr 60px;gap:10px;align-items:center;margin-bottom:12px">
+   <strong>Výhry</strong><div class="simple-bar"><span style="width:${wins/total*100}%;background:#2E7D32"></span></div><strong>${wins}</strong>
+   <strong>Prohry</strong><div class="simple-bar"><span style="width:${losses/total*100}%;background:#B23A3A"></span></div><strong>${losses}</strong>
+ </div>
+ </div>`;
+}
+
+function analyticsDateRange(mode,fromValue,toValue){
+ const today=new Date(); today.setHours(12,0,0,0);
+ let from=null,to=null;
+ if(mode==='30'){
+   from=new Date(today);from.setDate(from.getDate()-29);to=today;
+ }else if(mode==='90'){
+   from=new Date(today);from.setDate(from.getDate()-89);to=today;
+ }else if(mode==='year'){
+   from=new Date(today.getFullYear(),0,1,12);to=today;
+ }else if(mode==='custom'){
+   from=fromValue?new Date(fromValue+'T12:00:00'):null;
+   to=toValue?new Date(toValue+'T12:00:00'):null;
+ }
+ return {from,to};
+}
+function ticketInRange(t,range){
+ const d=new Date(t.date+'T12:00:00');
+ if(range.from&&d<range.from)return false;
+ if(range.to&&d>range.to)return false;
+ return true;
+}
+function filteredTickets(){
+ const mode=document.getElementById('periodFilter')?.value||'all';
+ const from=document.getElementById('periodFrom')?.value||'';
+ const to=document.getElementById('periodTo')?.value||'';
+ const range=analyticsDateRange(mode,from,to);
+ return data.tickets.filter(t=>ticketInRange(t,range));
+}
+function filteredSettledTickets(){
+ return filteredTickets().filter(t=>['Výherní','Proherní','Vrácený','Cash Out'].includes(t.status));
+}
+function aggregateByCountry(tickets){
+ const map={};
+ tickets.forEach(t=>t.matches.forEach(m=>{
+   if(!m.country||m.country==='Evropské poháry'||!['Vyšla','Nevyšla','Vrácena'].includes(m.status))return;
+   if(!map[m.country])map[m.country]={name:m.country,league:m.league||'',wins:0,losses:0,voids:0,total:0};
+   const x=map[m.country]; x.total++;
+   if(m.status==='Vyšla')x.wins++;
+   if(m.status==='Nevyšla')x.losses++;
+   if(m.status==='Vrácena')x.voids++;
+ }));
+ return Object.values(map).map(x=>({...x,success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0}))
+   .sort((a,b)=>b.success-a.success||b.total-a.total);
+}
+function aggregateByLeague(tickets){
+ const map={};
+ tickets.forEach(t=>t.matches.forEach(m=>{
+   if(!m.league||!['Vyšla','Nevyšla','Vrácena'].includes(m.status))return;
+   const key=(m.country||'')+'||'+m.league;
+   if(!map[key])map[key]={country:m.country||'',name:m.league,wins:0,losses:0,voids:0,total:0};
+   const x=map[key]; x.total++;
+   if(m.status==='Vyšla')x.wins++;
+   if(m.status==='Nevyšla')x.losses++;
+   if(m.status==='Vrácena')x.voids++;
+ }));
+ return Object.values(map).map(x=>({...x,success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0}))
+   .sort((a,b)=>b.success-a.success||b.total-a.total);
+}
+function aggregateTicketFinancials(tickets){
+ const map={};
+ tickets.forEach(t=>{
+   const uniqueCountries=[...new Set(t.matches.map(m=>m.country).filter(Boolean))];
+   const uniqueLeagues=[...new Set(t.matches.map(m=>m.league).filter(Boolean))];
+   const uniqueBetTypes=[...new Set(t.matches.map(m=>m.betType).filter(Boolean))];
+   const profit=ticketProfit(t),stake=Number(t.stake||0);
+   uniqueCountries.forEach(k=>{
+     if(!map['C:'+k])map['C:'+k]={stake:0,profit:0,tickets:0};
+     map['C:'+k].stake+=stake;map['C:'+k].profit+=profit;map['C:'+k].tickets++;
+   });
+   uniqueLeagues.forEach(k=>{
+     if(!map['L:'+k])map['L:'+k]={stake:0,profit:0,tickets:0};
+     map['L:'+k].stake+=stake;map['L:'+k].profit+=profit;map['L:'+k].tickets++;
+   });
+   uniqueBetTypes.forEach(k=>{
+     if(!map['B:'+k])map['B:'+k]={stake:0,profit:0,tickets:0};
+     map['B:'+k].stake+=stake;map['B:'+k].profit+=profit;map['B:'+k].tickets++;
+   });
+ });
+ return map;
+}
+function analyticsColor(success,total){
+ if(!total)return 'gray';
+ if(success>=65)return 'green';
+ if(success>=50)return 'yellow';
+ return 'red';
+}
+function roiValue(fin){
+ return fin&&fin.stake?fin.profit/fin.stake*100:0;
+}
+
+function aggregateByBetType(tickets){
+ const map={};
+ tickets.forEach(t=>t.matches.forEach(m=>{
+   if(!m.betType||!['Vyšla','Nevyšla','Vrácena'].includes(m.status))return;
+   const key=(m.betCategory||'Jiné')+'||'+m.betType;
+   if(!map[key])map[key]={category:m.betCategory||'Jiné',name:m.betType,wins:0,losses:0,voids:0,total:0};
+   const x=map[key];
+   x.total++;
+   if(m.status==='Vyšla')x.wins++;
+   if(m.status==='Nevyšla')x.losses++;
+   if(m.status==='Vrácena')x.voids++;
+ }));
+ return Object.values(map).map(x=>({...x,success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0}))
+   .sort((a,b)=>b.success-a.success||b.total-a.total);
+}
+
+
+function availableYears(){
+ const years=[...new Set(data.tickets.map(t=>Number(String(t.date||'').slice(0,4))).filter(y=>Number.isInteger(y)&&y>2000))];
+ if(!years.length)years.push(new Date().getFullYear());
+ return years.sort((a,b)=>b-a);
+}
+function selectedMonthYear(){
+ const select=document.getElementById('monthYearFilter');
+ return Number(select?.value||availableYears()[0]);
+}
+function monthStatsForYear(year){
+ const monthNames=['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec'];
+ const rows=monthNames.map((name,index)=>({name,index,tickets:0,wins:0,losses:0,stake:0,profit:0}));
+ data.tickets
+   .filter(t=>Number(String(t.date||'').slice(0,4))===year && ['Výherní','Proherní','Vrácený','Cash Out'].includes(t.status))
+   .forEach(t=>{
+      const month=Number(String(t.date).slice(5,7))-1;
+      if(month<0||month>11)return;
+      const x=rows[month];
+      x.tickets++;
+      x.stake+=Number(t.stake||0);
+      x.profit+=ticketProfit(t);
+      if(t.status==='Výherní')x.wins++;
+      if(t.status==='Proherní')x.losses++;
+   });
+ return rows.map(x=>({
+   ...x,
+   success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0,
+   roi:x.stake?x.profit/x.stake*100:0
+ }));
+}
+function renderMonthAnalytics(){
+ const el=document.getElementById('monthAnalytics');
+ if(!el)return;
+ const year=selectedMonthYear();
+ const months=monthStatsForYear(year);
+ el.innerHTML=`<div class="table-wrap"><table class="analytics-table"><thead><tr>
+ <th>Měsíc</th><th>Tikety</th><th>Výhry</th><th>Prohry</th><th>Úspěšnost</th><th>ROI</th><th>Profit</th>
+ </tr></thead><tbody>${months.map(x=>{
+   const color=analyticsColor(x.success,x.wins+x.losses);
+   return `<tr><td><span class="status-dot status-${color}"></span>${x.name}</td><td>${x.tickets}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.tickets?x.success.toFixed(1)+' %':'—'}</td><td class="${x.roi>=0?'pos':'neg'}">${x.tickets?x.roi.toFixed(2)+' %':'—'}</td><td class="${x.profit>=0?'pos':'neg'}">${x.tickets?(x.profit>=0?'+':'')+money(x.profit):'—'}</td></tr>`;
+ }).join('')}</tbody></table></div>`;
+}
+
+function renderAnalyticsTables(){
+ const tickets=filteredTickets();
+ const settled=filteredSettledTickets();
+ const financials=aggregateTicketFinancials(settled);
+ const countries=aggregateByCountry(tickets);
+ const leagues=aggregateByLeague(tickets);
+ const betTypes=aggregateByBetType(tickets);
+ const days=dayStatsForTickets(settled);
+
+ document.getElementById('countryAnalytics').innerHTML=`<div class="table-wrap"><table class="analytics-table"><thead><tr>
+ <th>Země</th><th>Liga</th><th>Zápasy</th><th>Výhry</th><th>Prohry</th><th>Úspěšnost</th><th>ROI*</th><th>Profit*</th>
+ </tr></thead><tbody>${countries.length?countries.map(x=>{
+   const fin=financials['C:'+x.name]||{stake:0,profit:0};
+   const color=analyticsColor(x.success,x.wins+x.losses);
+   return `<tr><td><span class="status-dot status-${color}"></span>${esc(x.name)}</td><td>${esc(x.league)}</td><td>${x.total}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.success.toFixed(1)} %</td><td class="${roiValue(fin)>=0?'pos':'neg'}">${roiValue(fin).toFixed(2)} %</td><td class="${fin.profit>=0?'pos':'neg'}">${fin.profit>=0?'+':''}${money(fin.profit)}</td></tr>`;
+ }).join(''):`<tr><td colspan="8">Pro zvolené období zatím nejsou data.</td></tr>`}</tbody></table></div>
+ <div class="small" style="margin-top:8px">* U kombinovaných tiketů je finanční výsledek připsán všem zemím zastoupeným na tiketu. Slouží k orientačnímu srovnání.</div>`;
+
+ document.getElementById('leagueAnalytics').innerHTML=`<div class="table-wrap"><table class="analytics-table"><thead><tr>
+ <th>Soutěž</th><th>Země / skupina</th><th>Zápasy</th><th>Výhry</th><th>Prohry</th><th>Úspěšnost</th><th>ROI*</th><th>Profit*</th>
+ </tr></thead><tbody>${leagues.length?leagues.map(x=>{
+   const fin=financials['L:'+x.name]||{stake:0,profit:0};
+   const color=analyticsColor(x.success,x.wins+x.losses);
+   return `<tr><td><span class="status-dot status-${color}"></span>${esc(x.name)}</td><td>${esc(x.country)}</td><td>${x.total}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.success.toFixed(1)} %</td><td class="${roiValue(fin)>=0?'pos':'neg'}">${roiValue(fin).toFixed(2)} %</td><td class="${fin.profit>=0?'pos':'neg'}">${fin.profit>=0?'+':''}${money(fin.profit)}</td></tr>`;
+ }).join(''):`<tr><td colspan="8">Pro zvolené období zatím nejsou data.</td></tr>`}</tbody></table></div>
+ <div class="small" style="margin-top:8px">* U kombinovaných tiketů je finanční výsledek orientačně přiřazen každé zastoupené soutěži.</div>`;
+
+ document.getElementById('dayAnalytics').innerHTML=`<div class="table-wrap"><table class="analytics-table"><thead><tr>
+ <th>Den</th><th>Tikety</th><th>Výhry</th><th>Prohry</th><th>Úspěšnost</th><th>ROI</th><th>Profit</th>
+ </tr></thead><tbody>${days.map(x=>{
+   const color=analyticsColor(x.success,x.wins+x.losses);
+   return `<tr><td><span class="status-dot status-${color}"></span>${x.name}</td><td>${x.tickets}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.success.toFixed(1)} %</td><td class="${x.roi>=0?'pos':'neg'}">${x.roi.toFixed(2)} %</td><td class="${x.profit>=0?'pos':'neg'}">${x.profit>=0?'+':''}${money(x.profit)}</td></tr>`;
+ }).join('')}</tbody></table></div>`;
+ document.getElementById('betTypeAnalytics').innerHTML=`<div class="table-wrap"><table class="analytics-table"><thead><tr>
+ <th>Kategorie</th><th>Typ sázky</th><th>Zápasy</th><th>Výhry</th><th>Prohry</th><th>Úspěšnost</th><th>ROI*</th><th>Profit*</th>
+ </tr></thead><tbody>${betTypes.length?betTypes.map(x=>{
+   const fin=financials['B:'+x.name]||{stake:0,profit:0};
+   const color=analyticsColor(x.success,x.wins+x.losses);
+   return `<tr><td>${esc(x.category)}</td><td><span class="status-dot status-${color}"></span>${esc(x.name)}</td><td>${x.total}</td><td>${x.wins}</td><td>${x.losses}</td><td>${x.success.toFixed(1)} %</td><td class="${roiValue(fin)>=0?'pos':'neg'}">${roiValue(fin).toFixed(2)} %</td><td class="${fin.profit>=0?'pos':'neg'}">${fin.profit>=0?'+':''}${money(fin.profit)}</td></tr>`;
+ }).join(''):`<tr><td colspan="8">Pro zvolené období zatím nejsou data.</td></tr>`}</tbody></table></div>
+ <div class="small" style="margin-top:8px">* U kombinovaných tiketů je finanční výsledek orientačně přiřazen každému typu sázky zastoupenému na tiketu.</div>`;
+ renderMonthAnalytics();
+}
+function dayStatsForTickets(tickets){
+ const names=['Neděle','Pondělí','Úterý','Středa','Čtvrtek','Pátek','Sobota'];
+ const out=names.map((name,i)=>({name,index:i,tickets:0,wins:0,losses:0,profit:0,stake:0}));
+ tickets.forEach(t=>{
+   const d=new Date(t.date+'T12:00:00').getDay(),x=out[d];
+   x.tickets++;x.stake+=Number(t.stake||0);x.profit+=ticketProfit(t);
+   if(t.status==='Výherní')x.wins++;
+   if(t.status==='Proherní')x.losses++;
+ });
+ return [out[1],out[2],out[3],out[4],out[5],out[6],out[0]].map(x=>({
+   ...x,
+   success:(x.wins+x.losses)?x.wins/(x.wins+x.losses)*100:0,
+   roi:x.stake?x.profit/x.stake*100:0
+ }));
+}
+function toggleCustomDates(){
+ const custom=document.getElementById('periodFilter').value==='custom';
+ document.getElementById('customDates').style.display=custom?'grid':'none';
+ renderAnalyticsTables();
+}
+function renderStats(){
+ const s=summary(),el=document.getElementById('view-stats');
+ el.innerHTML=`<h2>Statistiky</h2>
+ <div class="cards">${card('Počet tiketů',data.tickets.length)}${card('Otevřené tikety',s.open)}${card('Úspěšnost',s.success.toFixed(1)+' %')}${card('ROI',s.roi.toFixed(2)+' %')}${card('Profit',money(s.profit),s.profit>=0?'pos':'neg')}</div>
+
+ <div class="analytics-section">
+   <h2 style="font-size:18px">Období analýzy</h2>
+   <div class="filter-panel">
+     <div class="filter-grid">
+       ${field('Období',`<select id="periodFilter" onchange="toggleCustomDates()">
+         <option value="all">Celá historie</option>
+         <option value="30">Posledních 30 dní</option>
+         <option value="90">Posledních 90 dní</option>
+         <option value="year">Tento rok</option>
+         <option value="custom">Vlastní období</option>
+       </select>`)}
+     </div>
+     <div id="customDates" class="filter-grid" style="display:none;margin-top:10px">
+       ${field('Od',`<input id="periodFrom" type="date" onchange="renderAnalyticsTables()">`)}
+       ${field('Do',`<input id="periodTo" type="date" onchange="renderAnalyticsTables()">`)}
+     </div>
+   </div>
+ </div>
+
+ <div class="analytics-section"><h2 style="font-size:18px">1. Analýza podle zemí</h2><div id="countryAnalytics"></div></div>
+ <div class="analytics-section"><h2 style="font-size:18px">2. Analýza podle soutěží</h2><div id="leagueAnalytics"></div></div>
+ <div class="analytics-section"><h2 style="font-size:18px">3. Analýza podle dnů</h2><div id="dayAnalytics"></div></div>
+ <div class="analytics-section"><h2 style="font-size:18px">4. Analýza podle měsíců</h2>
+   <div class="filter-panel" style="margin-bottom:10px">
+     <div class="filter-grid">
+       ${field('Rok',`<select id="monthYearFilter" onchange="renderMonthAnalytics()">${availableYears().map(y=>`<option value="${y}">${y}</option>`).join('')}</select>`)}
+     </div>
+   </div>
+   <div id="monthAnalytics"></div>
+ </div>
+ <div class="analytics-section"><h2 style="font-size:18px">5. Analýza podle typu sázky</h2><div id="betTypeAnalytics"></div></div>
+ <div class="analytics-section"><h2 style="font-size:18px">Vývoj bankrollu</h2>${bankrollChart()}</div>`;
+ renderAnalyticsTables();
+}
+
+
+
+function clearInlineAnalysisImport(){
+  pendingImportedAnalysis=null;
+  const t=document.getElementById('analysisImportTextInline');
+  const e=document.getElementById('analysisImportErrorInline');
+  const p=document.getElementById('analysisImportPreviewInline');
+  if(t)t.value='';
+  if(e)e.textContent='';
+  if(p){p.innerHTML='';p.classList.add('hidden')}
+}
+function previewInlineAnalysisImport(){
+  const error=document.getElementById('analysisImportErrorInline');
+  const preview=document.getElementById('analysisImportPreviewInline');
+  if(error)error.textContent='';
+  if(preview){preview.innerHTML='';preview.classList.add('hidden')}
+  try{
+    pendingImportedAnalysis=parseAnalysisBlock(document.getElementById('analysisImportTextInline')?.value);
+    const a=pendingImportedAnalysis;
+    const duplicate=findDuplicateAnalysis(a);
+    preview.innerHTML=`${duplicate?`<div class="analysis-duplicate-warning">⚠ Tato analýza už v databázi existuje (${esc(duplicate.abaId||'bez ABA ID')}).</div>`:''}<div class="analysis-preview-grid">
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Datum</div><div class="analysis-preview-value">${esc(a.date)}</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Verdikt</div><div class="analysis-preview-value">${esc(a.verdict)}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Zápas</div><div class="analysis-preview-value">${esc(a.match)}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Soutěž / země</div><div class="analysis-preview-value">${esc(a.competition||'—')}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Tip</div><div class="analysis-preview-value">${esc(a.recommendation||'—')}</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Pravděpodobnost</div><div class="analysis-preview-value">${a.probability||0} %</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Důvěra</div><div class="analysis-preview-value">${a.confidence||0} %</div></div>
+    </div>
+    <div class="analysis-import-actions">
+      <button class="primary" type="button" onclick="saveInlineImportedAnalysis()">Uložit do ABA</button>
+      <button class="secondary" type="button" onclick="loadInlineImportedAnalysisIntoForm()">Upravit před uložením</button>
+    </div>`;
+    preview.classList.remove('hidden');
+  }catch(err){
+    pendingImportedAnalysis=null;
+    if(error)error.textContent=err.message||'Import se nepodařilo zpracovat.';
+  }
+}
+
+function findDuplicateAnalysis(candidate){
+  if(!candidate)return null;
+  return data.analyses.find(a=>{
+    if(candidate.abaId && a.abaId && String(a.abaId).toLowerCase()===String(candidate.abaId).toLowerCase())return true;
+    return String(a.date||'')===String(candidate.date||'')
+      && String(a.match||'').trim().toLowerCase()===String(candidate.match||'').trim().toLowerCase()
+      && String(a.recommendation||'').trim().toLowerCase()===String(candidate.recommendation||'').trim().toLowerCase();
+  })||null;
+}
+
+function saveInlineImportedAnalysis(){
+  if(!pendingImportedAnalysis)return;
+  const duplicate=findDuplicateAnalysis(pendingImportedAnalysis);
+  if(duplicate){
+    alert(`Tato analýza už v ABA existuje.\n\nABA ID: ${duplicate.abaId||'—'}\nZápas: ${duplicate.match}`);
+    return;
+  }
+  if(!confirm('Uložit tuto importovanou analýzu do ABA?'))return;
+  data.analyses.unshift(pendingImportedAnalysis);
+  saveData();
+  pendingImportedAnalysis=null;
+  renderAnalyses();
+  renderDashboard();
+}
+function loadInlineImportedAnalysisIntoForm(){
+  if(!pendingImportedAnalysis)return;
+  const a=pendingImportedAnalysis;
+  editingAnalysisId=null;
+  renderAnalyses();
+  const values={
+    analysisDate:a.date,analysisMatch:a.match,analysisCompetition:a.competition,
+    analysisRecommendation:a.recommendation,analysisProbability:a.probability||'',
+    analysisConfidence:a.confidence||'',analysisVerdict:a.verdict,analysisText:a.text
+  };
+  Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});
+  alert('Analýza byla načtena k úpravě. Ruční formulář už není součástí této verze, proto použij tlačítko Upravit až po uložení.');
+}
+
+let pendingImportedAnalysis=null;
+
+function openAnalysisImport(){
+  const modal=document.getElementById('analysisImportModal');
+  if(!modal)return;
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.classList.add('codex-open');
+  document.getElementById('analysisImportText')?.focus();
+}
+function closeAnalysisImport(){
+  const modal=document.getElementById('analysisImportModal');
+  if(!modal)return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.body.classList.remove('codex-open');
+}
+function clearAnalysisImport(){
+  pendingImportedAnalysis=null;
+  const text=document.getElementById('analysisImportText');
+  const error=document.getElementById('analysisImportError');
+  const preview=document.getElementById('analysisImportPreview');
+  if(text)text.value='';
+  if(error)error.textContent='';
+  if(preview){preview.innerHTML='';preview.classList.add('hidden')}
+}
+function normalizeImportedVerdict(value){
+  const v=String(value||'').trim().toLowerCase();
+  if(['vsadit','ano','bet'].includes(v))return 'Vsadit';
+  if(['nevsadit','ne','skip'].includes(v))return 'Nevsadit';
+  if(v.includes('sestav'))return 'Počkat na sestavy';
+  return 'Zvažovat';
+}
+function parseAnalysisBlock(raw){
+  const source=String(raw||'').trim();
+  if(!source.includes('=== ABA_ANALYSIS ===') || !source.includes('=== END ===')){
+    throw new Error('Blok musí začínat === ABA_ANALYSIS === a končit === END ===.');
+  }
+  const inner=source.split('=== ABA_ANALYSIS ===')[1].split('=== END ===')[0].trim();
+  const lines=inner.split(/\r?\n/);
+  const fields={};
+  const multilineKeys=new Set(['TEXT','RISKS']);
+  let currentKey=null;
+
+  for(const originalLine of lines){
+    const line=originalLine.replace(/\r$/,'');
+    const match=line.match(/^([A-Z][A-Z0-9_]*)\s*=\s*(.*)$/);
+    if(match){
+      currentKey=match[1];
+      fields[currentKey]=match[2]||'';
+      continue;
+    }
+    if(currentKey && multilineKeys.has(currentKey)){
+      fields[currentKey]+=(fields[currentKey]?'\n':'')+line;
+    }
+  }
+
+  const required=[];
+  if(!fields.MATCH && !(fields.HOME_TEAM&&fields.AWAY_TEAM))required.push('MATCH');
+  if(!fields.DATE)required.push('DATE');
+  if(!fields.TEXT)required.push('TEXT');
+  if(required.length)throw new Error('Chybí povinná pole: '+required.join(', '));
+
+  const number0to100=(value,label)=>{
+    const parsed=Number(String(value||'0').replace('%','').replace(',','.'));
+    const n=Number.isFinite(parsed)?parsed:0;
+    if(n<0||n>100)throw new Error(label+' musí být mezi 0 a 100.');
+    return n;
+  };
+
+  const date=fields.DATE.trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){
+    throw new Error('Datum musí být ve formátu RRRR-MM-DD.');
+  }
+
+  const matchName=(fields.MATCH||[fields.HOME_TEAM,fields.AWAY_TEAM].filter(Boolean).join(' - ')).trim();
+  const compactDate=date.replace(/-/g,'');
+  const generatedId=`ABA-${compactDate}-${String(Date.now()).slice(-6)}`;
+  const abaId=(fields.ABA_ID||generatedId).trim();
+
+  const alternatives=[fields.ALTERNATIVE_TIP_1,fields.ALTERNATIVE_TIP_2,fields.ALTERNATIVE_TIP_3]
+    .filter(Boolean).map(x=>x.trim());
+
+  return {
+    id:Date.now(),
+    abaId,
+    protocolVersion:(fields.PROTOCOL_VERSION||'1.0').trim(),
+    date,
+    createdTime:(fields.CREATED_TIME||'').trim(),
+    homeTeam:(fields.HOME_TEAM||'').trim(),
+    awayTeam:(fields.AWAY_TEAM||'').trim(),
+    match:matchName,
+    country:(fields.COUNTRY||'').trim(),
+    competition:[fields.COUNTRY,fields.COMPETITION].filter(Boolean).join(' – ') || (fields.COMPETITION||'').trim(),
+    round:(fields.ROUND||'').trim(),
+    recommendation:(fields.TIP||'').trim(),
+    market:(fields.MARKET||'').trim(),
+    alternativeTips:alternatives,
+    probability:number0to100(fields.PROBABILITY,'Pravděpodobnost'),
+    confidence:number0to100(fields.CONFIDENCE,'Důvěra'),
+    expectedScore:(fields.EXPECTED_SCORE||'').trim(),
+    expectedGoals:(fields.EXPECTED_GOALS||'').trim(),
+    expectedCorners:(fields.EXPECTED_CORNERS||'').trim(),
+    expectedShots:(fields.EXPECTED_SHOTS||'').trim(),
+    expectedShotsOnTarget:(fields.EXPECTED_SHOTS_ON_TARGET||'').trim(),
+    expectedCards:(fields.EXPECTED_CARDS||'').trim(),
+    risks:(fields.RISKS||'').trim(),
+    verdict:normalizeImportedVerdict(fields.VERDICT),
+    text:(fields.TEXT||'').trim(),
+    linkedTicketId:null,
+    evaluation:'Nehodnoceno',
+    actualScore:'',
+    postMatchNotes:'',
+    createdAt:new Date().toISOString()
+  };
+}
+function previewImportedAnalysis(){
+  const error=document.getElementById('analysisImportError');
+  const preview=document.getElementById('analysisImportPreview');
+  if(error)error.textContent='';
+  if(preview){preview.innerHTML='';preview.classList.add('hidden')}
+  try{
+    pendingImportedAnalysis=parseAnalysisBlock(document.getElementById('analysisImportText')?.value);
+    const a=pendingImportedAnalysis;
+    preview.innerHTML=`<div class="analysis-preview-grid">
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Datum</div><div class="analysis-preview-value">${esc(a.date)}</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Verdikt</div><div class="analysis-preview-value">${esc(a.verdict)}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Zápas</div><div class="analysis-preview-value">${esc(a.match)}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Soutěž / země</div><div class="analysis-preview-value">${esc(a.competition||'—')}</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Tip</div><div class="analysis-preview-value">${esc(a.recommendation||'—')}</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Pravděpodobnost</div><div class="analysis-preview-value">${a.probability||0} %</div></div>
+      <div class="analysis-preview-row"><div class="analysis-preview-label">Důvěra</div><div class="analysis-preview-value">${a.confidence||0} %</div></div>
+      <div class="analysis-preview-row full"><div class="analysis-preview-label">Text analýzy</div><div class="analysis-preview-value" style="white-space:pre-wrap">${esc(a.text)}</div></div>
+    </div>
+    <div class="analysis-import-actions">
+      <button class="primary" type="button" onclick="saveImportedAnalysis()">Uložit do ABA</button>
+      <button class="secondary" type="button" onclick="loadImportedAnalysisIntoForm()">Upravit před uložením</button>
+    </div>`;
+    preview.classList.remove('hidden');
+  }catch(e){
+    pendingImportedAnalysis=null;
+    if(error)error.textContent=e.message||'Import se nepodařilo zpracovat.';
+  }
+}
+function saveImportedAnalysis(){
+  if(!pendingImportedAnalysis)return;
+  const duplicate=findDuplicateAnalysis(pendingImportedAnalysis);
+  if(duplicate){
+    alert(`Tato analýza už v ABA existuje.\n\nABA ID: ${duplicate.abaId||'—'}\nZápas: ${duplicate.match}`);
+    return;
+  }
+  if(!confirm('Uložit tuto importovanou analýzu do ABA?'))return;
+  data.analyses.unshift(pendingImportedAnalysis);
+  saveData();
+  closeAnalysisImport();
+  clearAnalysisImport();
+  renderAnalyses();
+  renderDashboard();
+}
+function loadImportedAnalysisIntoForm(){
+  if(!pendingImportedAnalysis)return;
+  const a=pendingImportedAnalysis;
+  closeAnalysisImport();
+  editingAnalysisId=null;
+  renderAnalyses();
+  const values={
+    analysisDate:a.date,
+    analysisMatch:a.match,
+    analysisCompetition:a.competition,
+    analysisRecommendation:a.recommendation,
+    analysisProbability:a.probability||'',
+    analysisConfidence:a.confidence||'',
+    analysisVerdict:a.verdict,
+    analysisText:a.text
+  };
+  Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeAnalysisImport();
+});
+
+let editingAnalysisId=null;
+
+function analysisFormValue(id){
+  return document.getElementById(id)?.value?.trim()||'';
+}
+function resetAnalysisForm(){
+  editingAnalysisId=null;
+  const ids=['analysisMatch','analysisCompetition','analysisRecommendation','analysisProbability','analysisConfidence','analysisText'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  const date=document.getElementById('analysisDate');
+  if(date)date.value=new Date().toISOString().slice(0,10);
+  const verdict=document.getElementById('analysisVerdict');
+  if(verdict)verdict.value='Zvažovat';
+  const button=document.getElementById('saveAnalysisButton');
+  if(button)button.textContent='Uložit analýzu';
+}
+function saveAnalysisFromForm(){
+  const item={
+    id:editingAnalysisId||Date.now(),
+    date:analysisFormValue('analysisDate')||new Date().toISOString().slice(0,10),
+    match:analysisFormValue('analysisMatch'),
+    competition:analysisFormValue('analysisCompetition'),
+    recommendation:analysisFormValue('analysisRecommendation'),
+    probability:Number(analysisFormValue('analysisProbability')||0),
+    confidence:Number(analysisFormValue('analysisConfidence')||0),
+    verdict:analysisFormValue('analysisVerdict')||'Zvažovat',
+    text:analysisFormValue('analysisText'),
+    createdAt:new Date().toISOString()
+  };
+  if(!item.match){
+    alert('Doplň název zápasu.');
+    return;
+  }
+  if(!item.text){
+    alert('Doplň text analýzy.');
+    return;
+  }
+  const question=editingAnalysisId
+    ?'Uložit provedené změny této analýzy do ABA?'
+    :'Uložit tuto analýzu do ABA?';
+  if(!confirm(question))return;
+
+  if(editingAnalysisId){
+    const index=data.analyses.findIndex(a=>String(a.id)===String(editingAnalysisId));
+    if(index>=0)data.analyses[index]={...data.analyses[index],...item,id:editingAnalysisId};
+  }else{
+    data.analyses.unshift(item);
+  }
+  saveData();
+  resetAnalysisForm();
+  renderAnalyses();
+  renderDashboard();
+}
+function editAnalysis(id){
+  const a=data.analyses.find(x=>String(x.id)===String(id));
+  if(!a)return;
+  editingAnalysisId=a.id;
+  const values={
+    analysisDate:a.date,analysisMatch:a.match,analysisCompetition:a.competition,
+    analysisRecommendation:a.recommendation,analysisProbability:a.probability||'',
+    analysisConfidence:a.confidence||'',analysisVerdict:a.verdict,analysisText:a.text
+  };
+  Object.entries(values).forEach(([id,value])=>{const el=document.getElementById(id);if(el)el.value=value});
+  const button=document.getElementById('saveAnalysisButton');
+  if(button)button.textContent='Uložit změny';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function deleteAnalysis(id){
+  const a=data.analyses.find(x=>String(x.id)===String(id));
+  if(!a)return;
+  if(!confirm(`Opravdu odstranit analýzu zápasu ${a.match}?`))return;
+  data.analyses=data.analyses.filter(x=>String(x.id)!==String(id));
+  saveData();
+  renderAnalyses();
+  renderDashboard();
+}
+function analysisSearchText(a){
+  return [
+    a.abaId,a.match,a.homeTeam,a.awayTeam,a.country,a.competition,a.round,a.recommendation,a.market,a.verdict,a.text,a.risks,a.date,a.evaluation,
+    a.probability,a.confidence,(a.alternativeTips||[]).join(' ')
+  ].join(' ').toLowerCase();
+}
+
+function saveAnalysisReview(id){
+ const a=analysisById(id);
+ if(!a)return;
+ a.evaluation=document.getElementById('analysisReviewStatus')?.value||'Nehodnoceno';
+ a.resultStatus=a.evaluation;
+ a.actualScore=document.getElementById('analysisReviewScore')?.value?.trim()||'';
+ a.lesson=document.getElementById('analysisReviewLesson')?.value?.trim()||'';
+ a.postMatchNotes=document.getElementById('analysisReviewNotes')?.value?.trim()||'';
+ if(!confirm('Uložit vyhodnocení a poučení z této analýzy?'))return;
+ saveData();
+ closeAnalysisDetail();
+ renderAnalyses();
+ renderDashboard();
+}
+
+function openAnalysisDetail(id){
+  const a=data.analyses.find(x=>String(x.id)===String(id));
+  if(!a)return;
+  document.getElementById('analysisDetailTitle').textContent=a.match||'Analýza';
+  document.getElementById('analysisDetailMeta').textContent=[a.date,a.competition].filter(Boolean).join(' • ');
+  document.getElementById('analysisDetailBody').innerHTML=`<div class="analysis-detail-grid">
+    <div><div class="analysis-db-field-label">ABA ID</div><div class="analysis-db-field-value">${esc(a.abaId||'—')}</div></div>
+    <div><div class="analysis-db-field-label">Stav vyhodnocení</div><div class="analysis-db-field-value">${esc(a.evaluation||'Nehodnoceno')}</div></div>${a.linkedTicketId?`<div><div class="analysis-db-field-label">Propojený tiket</div><div class="analysis-db-field-value">${esc(a.linkedTicketId)}</div></div>`:''}
+    <div><div class="analysis-db-field-label">Verdikt</div><div class="analysis-db-field-value">${esc(a.verdict||'—')}</div></div>
+    <div><div class="analysis-db-field-label">Doporučený tip</div><div class="analysis-db-field-value">${esc(a.recommendation||'—')}</div></div>
+    <div><div class="analysis-db-field-label">Pravděpodobnost</div><div class="analysis-db-field-value">${Number(a.probability||0)} %</div></div>
+    <div><div class="analysis-db-field-label">Důvěra</div><div class="analysis-db-field-value">${Number(a.confidence||0)} %</div></div>
+    <div><div class="analysis-db-field-label">Očekávané skóre</div><div class="analysis-db-field-value">${esc(a.expectedScore||'—')}</div></div>
+    <div><div class="analysis-db-field-label">Trh</div><div class="analysis-db-field-value">${esc(a.market||'—')}</div></div>
+    ${a.risks?`<div class="full"><div class="analysis-db-field-label">Rizika</div><div class="analysis-db-field-value" style="white-space:pre-wrap">${esc(a.risks)}</div></div>`:''}
+    <div class="full"><div class="analysis-db-field-label">Kompletní analýza</div></div>
+  </div><div class="analysis-detail-text">${esc(a.text||'')}</div>
+<div class="analysis-evaluation-box">
+ <div class="analysis-auto-note">Při vyhodnocení propojeného zápasu ABA nastaví úspěšnost automaticky. Hodnoty můžeš ručně upravit.</div>
+ <div class="analysis-evaluation-grid">
+  <div><div class="analysis-db-field-label">Vyhodnocení</div><select id="analysisReviewStatus">${['Nehodnoceno','Úspěšná','Neúspěšná','Částečně úspěšná'].map(x=>`<option ${x===(a.evaluation||'Nehodnoceno')?'selected':''}>${x}</option>`).join('')}</select></div>
+  <div><div class="analysis-db-field-label">Konečný výsledek</div><input id="analysisReviewScore" value="${esc(a.actualScore||'')}" placeholder="Např. 1:1"></div>
+  <div class="full"><div class="analysis-db-field-label">Co jsme se z tohoto zápasu naučili?</div><textarea id="analysisReviewLesson" rows="4" placeholder="Např. správně jsme odhadli průběh, ale zvolili příliš rizikový trh.">${esc(a.lesson||'')}</textarea></div>
+  <div class="full"><div class="analysis-db-field-label">Poznámky po zápase</div><textarea id="analysisReviewNotes" rows="3">${esc(a.postMatchNotes||'')}</textarea></div>
+ </div>
+ <div class="analysis-evaluation-actions"><button class="primary" type="button" onclick="saveAnalysisReview('${a.abaId||a.id}')">Uložit vyhodnocení</button></div>
+</div>`;
+  const modal=document.getElementById('analysisDetailModal');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden','false');
+  document.body.classList.add('codex-open');
+}
+function closeAnalysisDetail(){
+  const modal=document.getElementById('analysisDetailModal');
+  if(!modal)return;
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.body.classList.remove('codex-open');
+}
+function renderAnalyses(){
+  const el=document.getElementById('view-analyses');
+  if(!el)return;
+  const query=(document.getElementById('analysisDbSearch')?.value||'').trim().toLowerCase();
+  const all=[...data.analyses].sort((a,b)=>String(b.date).localeCompare(String(a.date))||String(b.createdAt).localeCompare(String(a.createdAt)));
+  const rows=query?all.filter(a=>analysisSearchText(a).includes(query)):all;
+
+  el.innerHTML=`<div class="dashboard-title-wrap">
+    <div>
+      <h2 style="margin-bottom:4px">Databáze analýz</h2>
+      <div class="small">Analýzy vznikají v chatu a ukládají se do ABA importem.</div>
+    </div>
+  </div>
+  <div class="analysis-db-layout">
+    <section class="analysis-import-panel">
+      <h3>📥 Import analýzy</h3>
+      <div class="analysis-protocol-note"><strong>ABA Analysis Protocol v1.0</strong><br>Starší importní bloky zůstávají podporované. ABA ID chrání databázi před duplicitami.</div>
+      <div class="analysis-import-steps">
+        <strong>1.</strong> Po dokončení analýzy potvrď její uložení.<br>
+        <strong>2.</strong> Zkopíruj celý blok ABA_ANALYSIS.<br>
+        <strong>3.</strong> Vlož jej do pole níže.<br>
+        <strong>4.</strong> Zkontroluj náhled a potvrď uložení.
+      </div>
+      <textarea id="analysisImportTextInline" class="analysis-direct-textarea" placeholder="Sem vlož celý blok od === ABA_ANALYSIS === po === END ==="></textarea>
+      <div id="analysisImportErrorInline" class="analysis-import-error"></div>
+      <div class="analysis-direct-actions">
+        <button class="primary" type="button" onclick="previewInlineAnalysisImport()">Importovat</button>
+        <button class="secondary" type="button" onclick="clearInlineAnalysisImport()">Vymazat</button>
+      </div>
+      <div id="analysisImportPreviewInline" class="analysis-preview hidden"></div>
+    </section>
+    <section class="analysis-database-panel">
+      <div class="analysis-search-row">
+        <input id="analysisDbSearch" placeholder="Hledat tým, soutěž, tip nebo verdikt…" value="${esc(query)}" oninput="renderAnalyses()">
+        <div class="analysis-db-count">${rows.length}/${all.length} • ✅ ${all.filter(a=>a.evaluation==='Úspěšná').length} • ❌ ${all.filter(a=>a.evaluation==='Neúspěšná').length}</div>
+      </div>
+      ${rows.length?rows.map(a=>`<article class="analysis-db-card">
+        <div class="analysis-db-card-head">
+          <div>
+            <div class="analysis-db-title">${esc(a.match)}</div>
+            <div class="analysis-db-meta">${esc(a.date)}${a.competition?' • '+esc(a.competition):''}</div><div class="analysis-id">${esc(a.abaId||'—')}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><span class="analysis-badge">${esc(a.verdict||'Zvažovat')}</span><span class="analysis-status-badge">${esc(a.evaluation||'Nehodnoceno')}</span></div>
+        </div>
+        <div class="analysis-db-main">
+          <div><div class="analysis-db-field-label">Tip</div><div class="analysis-db-field-value">${esc(a.recommendation||'—')}</div></div>
+          <div><div class="analysis-db-field-label">Pravděpodobnost</div><div class="analysis-db-field-value">${Number(a.probability||0)} %</div></div>
+          <div><div class="analysis-db-field-label">Důvěra</div><div class="analysis-db-field-value">${Number(a.confidence||0)} %</div></div>
+          <div><div class="analysis-db-field-label">Datum</div><div class="analysis-db-field-value">${esc(a.date||'—')}</div></div>
+        </div>
+        <div class="analysis-db-card-actions">
+          <button class="primary" type="button" onclick="openAnalysisDetail('${a.id}')">Otevřít detail</button>
+          
+          <button class="danger" type="button" onclick="deleteAnalysis('${a.id}')">Odstranit</button>
+        </div>
+      </article>`).join(''):`<div class="analysis-empty">${all.length?'Žádná analýza neodpovídá vyhledávání.':'Zatím není uložená žádná analýza.'}</div>`}
+    </section>
+  </div>`;
+}
+
+function renderSettings(){
+ const el=document.getElementById('view-settings');el.innerHTML=`<h2>Nastavení</h2><div class="card">
+ ${field('Počáteční bankroll',`<input id="bankroll" inputmode="decimal" value="${data.settings.startingBankroll}">`)}
+ ${field('Dorovnání skutečného zůstatku',`<input id="bankrollAdjustment" inputmode="decimal" value="${Number(data.settings.bankrollAdjustment||0)}">`)}
+ <p class="small">Dorovnání ovlivňuje bankroll, ale nevstupuje do profitu ani ROI.</p>
+ <div class="row-actions" style="flex-wrap:wrap">
+<button class="primary" onclick="saveSettings()">Uložit</button>
+<button class="secondary" onclick="exportData()">Exportovat kompletní zálohu</button>
+<button class="secondary" onclick="document.getElementById('importBackup').click()">Obnovit ze souboru</button>
+<button class="secondary" onclick="openInternalBackups()">Obnovit automatickou zálohu</button>
+<input id="importBackup" type="file" accept=".json,application/json" style="display:none" onchange="importData(this.files[0])">
+<button class="secondary" onclick="checkForUpdate()">Zkontrolovat aktualizaci</button>
+<button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
+<button class="danger" onclick="resetData()">Obnovit výchozí data</button>
+</div>
+ <p class="small">Verze: ABU 1.0.0 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+}
+function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
+function formatBackupDate(iso){
+  try{return new Date(iso).toLocaleString('cs-CZ')}catch(e){return iso}
+}
+function openInternalBackups(){
+  const backups=loadInternalBackups();
+  if(!backups.length){
+    alert('Zatím není k dispozici žádná automatická záloha.');
+    return;
+  }
+  const choice=prompt('Zadej číslo zálohy, kterou chceš obnovit:\n\n'+backups.map((b,i)=>`${i+1}. ${formatBackupDate(b.createdAt)}`).join('\n'));
+  if(!choice)return;
+  const index=Number(choice)-1;
+  if(!Number.isInteger(index)||index<0||index>=backups.length){
+    alert('Neplatná volba.');
+    return;
+  }
+  if(!confirm(`Obnovit zálohu z ${formatBackupDate(backups[index].createdAt)}? Současná data budou nejprve automaticky zazálohována.`))return;
+  createInternalBackup(data);
+  try{
+    data=migrateData(JSON.parse(backups[index].data));
+    saveData();
+    renderAll();
+    showView('dashboard');
+    alert('Automatická záloha byla obnovena.');
+  }catch(e){
+    alert('Zálohu se nepodařilo obnovit.');
+  }
+}
+
+function importData(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const imported=migrateData(JSON.parse(reader.result));
+      if(!confirm('Obnovit data ze zálohy? Současná data budou nahrazena obsahem zálohy.'))return;
+      data=imported;
+      saveData();
+      alert('Záloha byla úspěšně obnovena.');
+      renderAll();
+      showView('dashboard');
+    }catch(e){
+      alert('Soubor zálohy není platný.');
+    }
+  };
+  reader.readAsText(file);
+}
+async function checkForUpdate(){
+  if(!('serviceWorker' in navigator)){alert('Aktualizace nejsou v tomto prohlížeči podporované.');return;}
+  try{
+    const reg=await navigator.serviceWorker.getRegistration();
+    if(!reg){alert('Aktualizační služba není aktivní. Otevři ABA jednou v Safari.');return;}
+    await reg.update();
+    if(reg.waiting){
+      reg.waiting.postMessage({type:'SKIP_WAITING'});
+      alert('Nová verze je připravena. ABA se nyní obnoví.');
+      location.reload();
+    }else{
+      alert('Kontrola dokončena. Používáš nejnovější dostupnou verzi.');
+    }
+  }catch(e){
+    alert('Aktualizaci se nepodařilo zkontrolovat. Zkus to později.');
+  }
+}
+function resetLogin(){
+  if(!confirm('Opravdu chceš zrušit současný login a nastavit nový?'))return;
+  localStorage.removeItem(AUTH_KEY);
+  logout();
+}
+function resetData(){if(confirm('Opravdu obnovit výchozí data?')){data=structuredClone(defaultData);saveData();renderAll();showView('dashboard')}}
+function renderAll(){renderDashboard();renderHistory();renderWatchlist();renderAnalyses();renderStats();renderSettings()}
+if ("serviceWorker" in navigator) {
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(refreshing)return;
+    refreshing=true;
+    location.reload();
+  });
+  window.addEventListener("load", async()=>{
+    const reg=await navigator.serviceWorker.register("./sw.js");
+    reg.addEventListener("updatefound",()=>{
+      const worker=reg.installing;
+      if(!worker)return;
+      worker.addEventListener("statechange",()=>{
+        if(worker.state==="installed" && navigator.serviceWorker.controller){
+          const useNow=confirm("Je dostupná nová verze ABA. Aktualizovat nyní? Tvoje data zůstanou zachovaná.");
+          if(useNow)worker.postMessage({type:"SKIP_WAITING"});
+        }
+      });
+    });
+  });
+}
+</script>
+
+<script>
+window.addEventListener('load',()=>{
+  const splash=document.getElementById('abaSplash');
+  setTimeout(()=>splash?.classList.add('hide'),900);
+});
+</script>
+
+
+<div id="analysisPickerOverlay" class="analysis-picker-overlay" hidden aria-hidden="true">
+  <div class="analysis-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="analysisPickerTitle">
+    <div class="analysis-picker-head">
+      <div><h3 id="analysisPickerTitle" style="margin:0">Vybrat propojenou analýzu</h3><div id="analysisPickerSubtitle" class="small"></div></div>
+      <button type="button" class="secondary" onclick="closeAnalysisPicker()">Zavřít</button>
+    </div>
+    <div id="analysisPickerList" class="analysis-picker-list"></div>
+  </div>
+</div>
+
+</body>
+</html>
