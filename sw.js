@@ -1,4 +1,4 @@
-const CACHE='abu-pwa-v1-0-4-ledger-repair';
+const CACHE='abu-pwa-v1-0-5-bankroll-repair';
 const ASSETS=[
   './',
   './index.html',

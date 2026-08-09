@@ -1561,6 +1561,28 @@ body.codex-open{
 .analysis-picker-match{border-color:rgba(13,180,188,.8);background:rgba(13,180,188,.11)}
 .analysis-picker-section{margin:14px 0 7px;color:var(--teal);font-weight:700}
 
+/* ABA 1.0.5 — barevné rozlišení výsledků v historii tiketů */
+.ticket-row td{transition:background .15s ease}
+.ticket-row-win td{background:rgba(37,211,142,.055)}
+.ticket-row-loss td{background:rgba(255,77,87,.06)}
+.ticket-row-open td{background:rgba(13,180,188,.045)}
+.ticket-row-return td{background:rgba(255,193,7,.05)}
+.ticket-row-win td:first-child{box-shadow:inset 4px 0 0 var(--pos)}
+.ticket-row-loss td:first-child{box-shadow:inset 4px 0 0 var(--neg)}
+.ticket-row-open td:first-child{box-shadow:inset 4px 0 0 var(--teal)}
+.ticket-row-return td:first-child{box-shadow:inset 4px 0 0 #d5a100}
+.ticket-row-win:hover td{background:rgba(37,211,142,.11)!important}
+.ticket-row-loss:hover td{background:rgba(255,77,87,.12)!important}
+.ticket-row-open:hover td{background:rgba(13,180,188,.10)!important}
+.ticket-row-return:hover td{background:rgba(255,193,7,.10)!important}
+.ticket-status-badge{display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:5px 9px;font-weight:750;white-space:nowrap}
+.ticket-status-badge::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}
+.ticket-status-win{color:var(--pos);background:rgba(37,211,142,.10);border:1px solid rgba(37,211,142,.3)}
+.ticket-status-loss{color:var(--neg);background:rgba(255,77,87,.10);border:1px solid rgba(255,77,87,.3)}
+.ticket-status-open{color:var(--teal);background:rgba(13,180,188,.10);border:1px solid rgba(13,180,188,.3)}
+.ticket-status-return{color:#e2b529;background:rgba(255,193,7,.10);border:1px solid rgba(255,193,7,.3)}
+.ticket-status-neutral{color:var(--muted);background:rgba(144,164,174,.10);border:1px solid rgba(144,164,174,.3)}
+
 </style>
 </head>
 <body>
@@ -1578,7 +1600,7 @@ body.codex-open{
     <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
     <div id="abaSplashTitle">ABA</div>
     <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
-    <div id="abaSplashVersion">v1.0.4</div>
+    <div id="abaSplashVersion">v1.0.5</div>
   </div>
 </div>
 
@@ -1650,7 +1672,7 @@ body.codex-open{
 
 <header>
   <strong>ABU – Anděl Bet Upgrade</strong>
-  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.4</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.5</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
 </header>
 <div class="layout">
 <nav>
@@ -1676,7 +1698,7 @@ body.codex-open{
 </section>
 
 <script>
-const APP_VERSION='1.0.4';
+const APP_VERSION='1.0.5';
 const KEY='abu_zobak_v1';
 const AUTH_KEY='abu_auth_v1';
 const BACKUP_KEY='abu_internal_backups_v1';
@@ -2012,6 +2034,33 @@ function migrateData(raw){
     d.settings.ticketLedgerRepair20260809=true;
   }
 
+  // v1.0.5: úplná obnova tiketů 1–21. Ve v1.0.4 se kvůli dřívější
+  // duplicitě ID mohl zachovat poškozený tiket 000001. Ověřená řada ze
+  // screenshotů je proto obnovena celá; uživatelské analýzy a nastavení
+  // mimo účetní řadu zůstávají zachované.
+  if(!d.settings.ticketLedgerRepair20260809V2){
+    d.tickets=structuredClone(defaultData.tickets);
+    const verifiedAnalysisLinks={
+      'ABA-20260808-PSV-FOR':{ticketId:'2026 - 000018',match:'PSV Eindhoven – Fortuna Sittard',score:'2:2',evaluation:'Neúspěšná'},
+      'ABA-20260808-AZ-ADO':{ticketId:'2026 - 000018',match:'AZ Alkmaar – ADO Den Haag',score:'2:0',evaluation:'Úspěšná'},
+      'ABA-20260808-EST-SCP':{ticketId:'2026 - 000018',match:'CF Estrela – Sporting CP',score:'2:2',evaluation:'Neúspěšná'},
+      'ABA-20260809-SLA-PAR':{ticketId:'2026 - 000021',match:'Slavia Praha – Pardubice'},
+      'ABA-20260809-POR-ALV':{ticketId:'2026 - 000021',match:'FC Porto – Alverca'},
+      'ABA-20260809-BEN-VIS':{ticketId:'2026 - 000021',match:'Benfica – Académico Viseu'}
+    };
+    d.analyses.forEach(a=>{
+      const link=verifiedAnalysisLinks[String(a.abaId||'')];
+      if(!link)return;
+      a.linkedTicketId=link.ticketId;
+      a.linkedMatchName=link.match;
+      if(link.score)a.actualScore=link.score;
+      if(link.evaluation){a.evaluation=link.evaluation;a.resultStatus=link.evaluation}
+    });
+    d.settings.startingBankroll=100000;
+    d.settings.bankrollAdjustment=83.94;
+    d.settings.ticketLedgerRepair20260809V2=true;
+  }
+
   d.tickets.forEach(t=>{
     if(!Array.isArray(t.matches))t.matches=[];
     if(t.payout===undefined)t.payout=0;
@@ -2030,7 +2079,7 @@ function migrateData(raw){
       if(!m.status)m.status='Čeká';
     });
   });
-  d.schemaVersion=19;
+  d.schemaVersion=20;
   return d;
 }
 function loadData(){
@@ -2057,7 +2106,7 @@ function createInternalBackup(snapshot){
   }catch(e){}
 }
 function saveData(){
-  data.schemaVersion=17;
+  data.schemaVersion=20;
   const previous=localStorage.getItem(KEY);
   if(previous){
     try{createInternalBackup(JSON.parse(previous))}catch(e){}
@@ -2065,6 +2114,7 @@ function saveData(){
   localStorage.setItem(KEY,JSON.stringify(data));
 }
 function money(n){return new Intl.NumberFormat('cs-CZ',{maximumFractionDigits:0}).format(Number(n)||0)+' Kč'}
+function moneyExact(n){return new Intl.NumberFormat('cs-CZ',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n)||0)+' Kč'}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function bytesToB64(bytes){
   let s=''; bytes.forEach(b=>s+=String.fromCharCode(b)); return btoa(s);
@@ -2153,15 +2203,16 @@ function showView(v){
   if(v==='dashboard')renderDashboard(); if(v==='history')renderHistory(); if(v==='watchlist')renderWatchlist(); if(v==='analyses')renderAnalyses(); if(v==='stats')renderStats(); if(v==='settings')renderSettings(); if(v==='new')startDraft();
 }
 function summary(){
-  let profit=0,wins=0,losses=0,settledStake=0,open=0;
+  let profit=0,wins=0,losses=0,settledStake=0,open=0,openStake=0;
   data.tickets.forEach(t=>{
-    if(['Otevřený','Rozpracovaný'].includes(t.status))open++;
+    if(['Otevřený','Rozpracovaný'].includes(t.status)){open++;openStake+=Number(t.stake||0)}
     if(t.status==='Výherní'){profit+=(effectivePayout(t)-Number(t.stake||0));wins++;settledStake+=Number(t.stake||0)}
     if(t.status==='Proherní'){profit-=Number(t.stake||0);losses++;settledStake+=Number(t.stake||0)}
     if(t.status==='Vrácený'){profit+=(effectivePayout(t)-Number(t.stake||0));settledStake+=Number(t.stake||0)}
     if(t.status==='Cash Out'){profit+=(effectivePayout(t)-Number(t.stake||0));wins++;settledStake+=Number(t.stake||0)}
   });
-  return {profit,current:data.settings.startingBankroll+profit+Number(data.settings.bankrollAdjustment||0),roi:settledStake?profit/settledStake*100:0,success:(wins+losses)?wins/(wins+losses)*100:0,open};
+  const total=data.settings.startingBankroll+profit+Number(data.settings.bankrollAdjustment||0);
+  return {profit,current:total-openStake,total,openStake,roi:settledStake?profit/settledStake*100:0,success:(wins+losses)?wins/(wins+losses)*100:0,open};
 }
 
 function todayProfit(){
@@ -2270,14 +2321,14 @@ function renderDashboard(){
  <div><h2 class="dashboard-title">Dashboard</h2><div class="small" style="color:var(--teal)!important">Nejsem lovec sázek, jsem správce kapitálu.</div></div>
  <button class="dashboard-analysis-link" type="button" onclick="showView('analyses')"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h7"/><path d="m15 13 2 2 3-4"/></svg><span>Analýzy (${data.analyses.length})</span></button>
  </div>
- <div class="dashboard-kpi-grid">${kpi('Bankroll',money(s.current),'wallet')}${kpi('Dnes',`${today>=0?'+':''}${money(today)}`,'calendar',today>=0?'pos':'neg')}${kpi('ROI',`${s.roi.toFixed(2)} %`,'roi',s.roi>=0?'pos':'neg')}</div>
+ <div class="dashboard-kpi-grid">${kpi('Dostupný bankroll',moneyExact(s.current),'wallet')}${kpi('Dnes',`${today>=0?'+':''}${money(today)}`,'calendar',today>=0?'pos':'neg')}${kpi('ROI',`${s.roi.toFixed(2)} %`,'roi',s.roi>=0?'pos':'neg')}</div>
  <div class="dashboard-main-grid">
    <div class="dashboard-main-left">
      <div class="dashboard-chart">
        <div class="dashboard-chart-head"><h3>Vývoj bankrollu</h3><div class="chart-range">${dashboardRangeButtons()}</div></div>
        ${bankrollChart()}
      </div>
-     <div class="dashboard-detail-grid">${detail('Nejvyšší bankroll',money(bm.maximum),'high')}${detail('Aktuální stav',money(bm.current),'pulse')}${detail('Rozdíl od maxima',`${bm.drawdown>=0?'+':''}${money(bm.drawdown)}`,'trophy',bm.drawdown>=0?'pos':'neg')}${detail('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}</div>
+     <div class="dashboard-detail-grid">${detail('Nejvyšší dostupný bankroll',money(bm.maximum),'high')}${detail('Celkový bankroll včetně otevřených sázek',moneyExact(s.total),'pulse')}${detail('Rozdíl od maxima',`${bm.drawdown>=0?'+':''}${money(bm.drawdown)}`,'trophy',bm.drawdown>=0?'pos':'neg')}${detail('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}</div>
      <div class="dashboard-summary-grid">${mini('Počet tiketů',counts.total,'ticket')}${mini('Výhry',counts.wins,'check','pos')}${mini('Prohry',counts.losses,'cross','neg')}${mini('Úspěšnost',`${s.success.toFixed(2)} %`,'target')}${mini('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}${mini('Profit',`${s.profit>=0?'+':''}${money(s.profit)}`,'coins',s.profit>=0?'pos':'neg')}</div>
    </div>
    <aside class="dashboard-codex-link">
@@ -2297,9 +2348,16 @@ function renderDashboard(){
  </div>`;
 }
 function card(k,v,c=''){return `<div class="card"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`}
+function ticketStatusVisual(status){
+ if(status==='Výherní'||status==='Cash Out')return 'win';
+ if(status==='Proherní')return 'loss';
+ if(status==='Otevřený'||status==='Rozpracovaný')return 'open';
+ if(status==='Vrácený')return 'return';
+ return 'neutral';
+}
 function ticketTable(list){
  return `<div class="table-wrap"><table><thead><tr><th>Tiket</th><th>Datum</th><th>Zápasů</th><th>Kurz</th><th>Vklad</th><th>Výplata</th><th>Stav</th></tr></thead><tbody>
- ${list.map(t=>`<tr onclick="openTicket('${t.id}')" style="cursor:pointer"><td>${esc(t.id)}</td><td>${esc(t.date)}</td><td>${t.matches.length}</td><td>${Number(t.totalOdds).toFixed(2)}</td><td>${money(t.stake)}</td><td>${money(effectivePayout(t))}</td><td>${esc(t.status)}</td></tr>`).join('')}
+ ${list.map(t=>{const visual=ticketStatusVisual(t.status);return `<tr class="ticket-row ticket-row-${visual}" onclick="openTicket('${t.id}')" style="cursor:pointer"><td>${esc(t.id)}</td><td>${esc(t.date)}</td><td>${t.matches.length}</td><td>${Number(t.totalOdds).toFixed(2)}</td><td>${money(t.stake)}</td><td>${money(effectivePayout(t))}</td><td><span class="ticket-status-badge ticket-status-${visual}">${esc(t.status)}</span></td></tr>`}).join('')}
  </tbody></table></div>`;
 }
 function nextId(dateOrYear){
@@ -2866,7 +2924,10 @@ function bankrollSeries(){
      bank+=ticketProfit(t);
      rows.push({label:t.date,date:t.date,value:bank,id:t.id});
    });
- if(rows.length)rows[rows.length-1].value+=Number(data.settings.bankrollAdjustment||0);
+ const openStake=data.tickets
+   .filter(t=>['Otevřený','Rozpracovaný'].includes(t.status))
+   .reduce((sum,t)=>sum+Number(t.stake||0),0);
+ if(rows.length)rows[rows.length-1].value+=Number(data.settings.bankrollAdjustment||0)-openStake;
  return rows;
 }
 function bankrollChart(){
@@ -3705,7 +3766,7 @@ function renderSettings(){
 <button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
 <button class="danger" onclick="resetData()">Obnovit výchozí data</button>
 </div>
- <p class="small">Verze: ABU 1.0.4 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+ <p class="small">Verze: ABU 1.0.5 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
 }
 function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
 function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
