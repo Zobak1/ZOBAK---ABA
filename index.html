@@ -1578,7 +1578,7 @@ body.codex-open{
     <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
     <div id="abaSplashTitle">ABA</div>
     <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
-    <div id="abaSplashVersion">v1.0.2</div>
+    <div id="abaSplashVersion">v1.0.3</div>
   </div>
 </div>
 
@@ -1650,7 +1650,7 @@ body.codex-open{
 
 <header>
   <strong>ABU – Anděl Bet Upgrade</strong>
-  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.2</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.3</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
 </header>
 <div class="layout">
 <nav>
@@ -1676,7 +1676,7 @@ body.codex-open{
 </section>
 
 <script>
-const APP_VERSION='1.0.2';
+const APP_VERSION='1.0.3';
 const KEY='abu_zobak_v1';
 const AUTH_KEY='abu_auth_v1';
 const BACKUP_KEY='abu_internal_backups_v1';
@@ -2250,18 +2250,26 @@ function ticketTable(list){
  ${list.map(t=>`<tr onclick="openTicket('${t.id}')" style="cursor:pointer"><td>${esc(t.id)}</td><td>${esc(t.date)}</td><td>${t.matches.length}</td><td>${Number(t.totalOdds).toFixed(2)}</td><td>${money(t.stake)}</td><td>${money(effectivePayout(t))}</td><td>${esc(t.status)}</td></tr>`).join('')}
  </tbody></table></div>`;
 }
-function nextId(){
- const y=new Date().getFullYear();
+function nextId(dateOrYear){
+ const yearMatch=String(dateOrYear||new Date().getFullYear()).match(/\d{4}/);
+ const y=yearMatch?yearMatch[0]:String(new Date().getFullYear());
  const nums=data.tickets
-   .map(t=>String(t.id||'').match(new RegExp(`^${y}\s*-\s*(\d+)$`)))
-   .filter(Boolean)
-   .map(m=>Number(m[1]))
+   .map(t=>String(t.id||'').match(/^(\d{4})\s*[-–—]\s*(\d+)$/))
+   .filter(m=>m&&m[1]===y)
+   .map(m=>Number(m[2]))
    .filter(Number.isFinite);
- const n=(nums.length?Math.max(...nums):0)+1;
- return `${y} - ${String(n).padStart(6,'0')}`;
+ let n=(nums.length?Math.max(...nums):0)+1;
+ const used=new Set(data.tickets.map(t=>String(t.id||'').replace(/[–—]/g,'-').replace(/\s+/g,' ').trim()));
+ let candidate=`${y} - ${String(n).padStart(6,'0')}`;
+ while(used.has(candidate)){
+   n+=1;
+   candidate=`${y} - ${String(n).padStart(6,'0')}`;
+ }
+ return candidate;
 }
 function startDraft(){
- draft={id:nextId(),date:new Date().toISOString().slice(0,10),stake:0,totalOdds:1,payout:0,status:'Otevřený',note:'',matches:[{name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null}]};
+ const today=new Date().toISOString().slice(0,10);
+ draft={id:nextId(today),date:today,stake:0,totalOdds:1,payout:0,status:'Otevřený',note:'',matches:[{name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null}]};
  renderDraft();
 }
 function renderDraft(){
@@ -2520,11 +2528,10 @@ function saveDraft(){
  if(draft.matches.some(m=>Number(m.odds||0)<=0))return alert('Každý kurz musí být větší než nula.');
  draft.totalOdds=calcDraft();
  const savedTicket=structuredClone(draft);
- // Druhá pojistka: duplicitní ID se nesmí uložit ani v případě starých/migrovaných dat.
- if(data.tickets.some(t=>String(t.id)===String(savedTicket.id))){
-   savedTicket.id=nextId();
-   draft.id=savedTicket.id;
- }
+ // ID se přiděluje znovu až v okamžiku uložení. Tím zůstane jedinečné
+ // i tehdy, když byl formulář otevřený delší dobu nebo obsahuje staré ID.
+ savedTicket.id=nextId(savedTicket.date);
+ draft.id=savedTicket.id;
  data.tickets.push(savedTicket);syncAnalysisLinksForTicket(savedTicket);saveData();alert('Tiket uložen.');showView('history');
 }
 function renderHistory(){
@@ -3646,7 +3653,7 @@ function renderSettings(){
 <button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
 <button class="danger" onclick="resetData()">Obnovit výchozí data</button>
 </div>
- <p class="small">Verze: ABU 1.0.2 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+ <p class="small">Verze: ABU 1.0.3 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
 }
 function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
 function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
