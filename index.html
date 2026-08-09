@@ -9,7 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=0111">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=0111">
-<title>ABU – Anděl Bet Upgrade</title>
+<title>ABA – Angel Bet Analytics</title>
 <style>
 :root{
   --nav:#19324D; --nav2:#274A6A; --bg:#F4F6F8; --card:#fff; --text:#263238;
@@ -1598,6 +1598,74 @@ body.codex-open{
   margin-bottom:3px;
 }
 
+/* ABA 1.0.7 — jednoduché hodnocení rizika a stav exportované zálohy */
+.ticket-risk{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  padding:8px 12px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:rgba(144,164,174,.08);
+  color:var(--muted);
+}
+.ticket-risk::before{content:'';width:10px;height:10px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px rgba(144,164,174,.10)}
+.ticket-risk-low{color:var(--pos);border-color:rgba(37,211,142,.35);background:rgba(37,211,142,.08)}
+.ticket-risk-medium{color:#e2b529;border-color:rgba(255,193,7,.38);background:rgba(255,193,7,.08)}
+.ticket-risk-high{color:var(--neg);border-color:rgba(255,77,87,.38);background:rgba(255,77,87,.08)}
+.backup-export-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin:14px 0;
+  padding:12px 14px;
+  border:1px solid rgba(13,180,188,.28);
+  border-radius:12px;
+  background:rgba(13,180,188,.07);
+}
+.backup-export-status strong{color:var(--teal)}
+
+/* ABA 1.0.8 — adresář lig a týmové výsledky z vlastních tiketů */
+.league-folder-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(225px,1fr));
+  gap:12px;
+  margin-top:16px;
+}
+.league-folder{
+  width:100%;
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:11px;
+  text-align:left;
+  color:var(--text);
+  background:linear-gradient(180deg,var(--card),var(--card2));
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:14px;
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
+}
+.league-folder:hover,.league-folder.active{border-color:var(--teal);background:rgba(13,180,188,.09)}
+.league-folder-icon{font-size:30px;line-height:1}
+.league-folder-title{display:block;font-weight:780;color:var(--teal);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.league-folder-country{display:block;font-size:12px;color:var(--muted);margin-top:3px}
+.league-folder-count{display:block;font-size:11px;color:var(--muted);margin-top:5px}
+.league-team-detail{margin-top:18px}
+.league-team-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:10px}
+.league-team-head h3{margin:0;color:var(--teal)}
+.team-success-value{font-weight:780;white-space:nowrap}
+.team-success-green{color:var(--pos)}
+.team-success-yellow{color:#e2b529}
+.team-success-red{color:var(--neg)}
+.team-success-gray{color:var(--muted)}
+@media(max-width:620px){
+  .league-folder-grid{grid-template-columns:1fr}
+  .league-team-head{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 </head>
 <body>
@@ -1615,14 +1683,14 @@ body.codex-open{
     <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
     <div id="abaSplashTitle">ABA</div>
     <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
-    <div id="abaSplashVersion">v1.0.6</div>
+    <div id="abaSplashVersion">v1.0.8</div>
   </div>
 </div>
 
 <section id="login">
   <div class="login-card">
     <h1>ABA</h1>
-    <p>Anděl Bet Analytics</p>
+    <p>Angel Bet Analytics</p>
 
     <div id="setupBox" class="hidden">
       <div class="small" style="margin-bottom:12px">
@@ -1686,8 +1754,8 @@ body.codex-open{
 </div>
 
 <header>
-  <strong>ABU – Anděl Bet Upgrade</strong>
-  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.6</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+  <strong>ABA – Angel Bet Analytics</strong>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.8</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
 </header>
 <div class="layout">
 <nav>
@@ -1697,6 +1765,7 @@ body.codex-open{
   <button data-view="history"><svg class="nav-svg" viewBox="0 0 24 24"><rect x="4" y="3" width="14" height="18" rx="2"/><path d="M8 7h6M8 11h6"/><circle cx="17.5" cy="16.5" r="3.5"/><path d="M17.5 14.5v2.2l1.4.8"/></svg><span>Historie tiketů</span></button>
   <button data-view="watchlist"><svg class="nav-svg" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/></svg><span>Zvažované zápasy</span></button>
   <button data-view="analyses"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h5M8 17h7"/><path d="m15 13 2 2 3-4"/></svg><span>Analýzy</span></button>
+  <button data-view="teams"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 6h7l2 2h9v11H3z"/><path d="M7 13h10M7 16h7"/></svg><span>Ligy a týmy</span></button>
   <button data-view="stats"><svg class="nav-svg" viewBox="0 0 24 24"><path d="M5 20V10M10 20V5M15 20v-8M20 20V3"/></svg><span>Statistiky</span></button>
   <button data-view="settings"><svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21h-4v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3v-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.1v4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Nastavení</span></button>
 </nav>
@@ -1706,6 +1775,7 @@ body.codex-open{
   <section id="view-history" class="hidden"></section>
   <section id="view-watchlist" class="hidden"></section>
   <section id="view-analyses" class="hidden"></section>
+  <section id="view-teams" class="hidden"></section>
   <section id="view-stats" class="hidden"></section>
   <section id="view-settings" class="hidden"></section>
 </main>
@@ -1713,7 +1783,7 @@ body.codex-open{
 </section>
 
 <script>
-const APP_VERSION='1.0.6';
+const APP_VERSION='1.0.8';
 const KEY='abu_zobak_v1';
 const AUTH_KEY='abu_auth_v1';
 const BACKUP_KEY='abu_internal_backups_v1';
@@ -1790,7 +1860,7 @@ const BET_TYPES = [
   {category:'Jiné',type:'Jiný typ'}
 ];
 const defaultData={
-  settings:{startingBankroll:100000,bankrollAdjustment:83.94,bankrollBaseline20260801:true},
+  settings:{startingBankroll:100000,bankrollAdjustment:83.94,bankrollBaseline20260801:true,lastBackupAt:'2026-08-09'},
   tickets:[
     {id:'2026 - 000001',date:'2026-08-01',stake:100000,totalOdds:1.13,payout:113000,status:'Výherní',note:'Betano ID 20007901085.',matches:[
       {name:'FC Porto – SC União Torreense',pick:'FC Porto vyhraje',odds:1.13,result:'1:0',status:'Vyšla',country:'Portugalsko',league:'',euroLoad:'none',note:''}]},
@@ -1922,6 +1992,8 @@ function migrateData(raw){
   if(!d.settings)d.settings={startingBankroll:100000};
   if(d.settings.startingBankroll===undefined)d.settings.startingBankroll=100000;
   if(d.settings.bankrollAdjustment===undefined)d.settings.bankrollAdjustment=83.94;
+  // Zobák provedl ověřený export 9. 8. 2026. Další exporty datum aktualizují.
+  if(d.settings.lastBackupAt===undefined)d.settings.lastBackupAt='2026-08-09';
   // v0.22.0: sjednocení počátečního bankrollu projektu k 1. 8. 2026
   if(!d.settings.bankrollBaseline20260801){
     d.settings.startingBankroll=100000;
@@ -2094,7 +2166,7 @@ function migrateData(raw){
       if(!m.status)m.status='Čeká';
     });
   });
-  d.schemaVersion=20;
+  d.schemaVersion=21;
   return d;
 }
 function loadData(){
@@ -2121,7 +2193,7 @@ function createInternalBackup(snapshot){
   }catch(e){}
 }
 function saveData(){
-  data.schemaVersion=20;
+  data.schemaVersion=21;
   const previous=localStorage.getItem(KEY);
   if(previous){
     try{createInternalBackup(JSON.parse(previous))}catch(e){}
@@ -2215,7 +2287,7 @@ function showView(v){
   document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));
   document.getElementById('view-'+v).classList.remove('hidden');
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
-  if(v==='dashboard')renderDashboard(); if(v==='history')renderHistory(); if(v==='watchlist')renderWatchlist(); if(v==='analyses')renderAnalyses(); if(v==='stats')renderStats(); if(v==='settings')renderSettings(); if(v==='new')startDraft();
+  if(v==='dashboard')renderDashboard(); if(v==='history')renderHistory(); if(v==='watchlist')renderWatchlist(); if(v==='analyses')renderAnalyses(); if(v==='teams')renderLeagueTeams(); if(v==='stats')renderStats(); if(v==='settings')renderSettings(); if(v==='new')startDraft();
 }
 function summary(){
   let profit=0,wins=0,losses=0,settledStake=0,open=0,openStake=0;
@@ -2399,6 +2471,27 @@ function startDraft(){
  draft={id:nextId(today),date:today,stake:0,totalOdds:1,payout:0,status:'Otevřený',note:'',matches:[{name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null}]};
  renderDraft();
 }
+function draftRiskAssessment(stake){
+ const amount=Number(stake||0);
+ const bankroll=Number(summary().total||0);
+ if(amount<=0||bankroll<=0)return {key:'none',label:'Zadej vklad'};
+ const share=amount/bankroll;
+ if(share<=0.10)return {key:'low',label:'Nízké riziko'};
+ if(share<=0.20)return {key:'medium',label:'Střední riziko'};
+ return {key:'high',label:'Vysoké riziko'};
+}
+function draftRiskMarkup(){
+ const risk=draftRiskAssessment(draft?.stake);
+ return `<div id="d-risk" class="ticket-risk ticket-risk-${risk.key}"><strong>Hodnocení rizika:</strong> <span id="d-risk-label">${risk.label}</span></div>`;
+}
+function updateDraftRisk(){
+ const box=document.getElementById('d-risk');
+ const label=document.getElementById('d-risk-label');
+ if(!box||!label)return;
+ const risk=draftRiskAssessment(draft?.stake);
+ box.className=`ticket-risk ticket-risk-${risk.key}`;
+ label.textContent=risk.label;
+}
 function renderDraft(){
  const el=document.getElementById('view-new');
  el.innerHTML=`<h2>Nový tiket</h2><div class="ticket-head">
@@ -2406,7 +2499,7 @@ function renderDraft(){
  ${field('Vklad',`<input id="d-stake" inputmode="decimal" value="${draft.stake}">`)}
  ${field('Poznámka k tiketu',`<input id="d-note" value="${esc(draft.note)}">`)}
  </div>
- <div class="toolbar" style="margin-top:12px"><strong>Celkový kurz: <span id="d-total">${calcDraft().toFixed(2)}</span></strong><strong>Možná výhra: <span id="d-possible">${money(calcDraft()*Number(draft.stake||0))}</span></strong></div>
+ <div class="toolbar" style="margin-top:12px"><strong>Celkový kurz: <span id="d-total">${calcDraft().toFixed(2)}</span></strong><strong>Možná výhra: <span id="d-possible">${money(calcDraft()*Number(draft.stake||0))}</span></strong>${draftRiskMarkup()}</div>
  <div id="matches">${draft.matches.map((m,i)=>matchEditor(m,i)).join('')}</div>
  <div class="row-actions"><button class="secondary" onclick="addMatch()">+ Přidat zápas</button><button class="primary" onclick="saveDraft()">Uložit tiket</button></div>`;
  document.getElementById('d-date').oninput=e=>draft.date=e.target.value;
@@ -2646,7 +2739,7 @@ function setMatch(i,k,v){
  if(k==='odds')updateDraftTotals();
 }
 function calcDraft(){return draft.matches.reduce((p,m)=>p*(Number(m.odds)||1),1)}
-function updateDraftTotals(){const t=calcDraft();document.getElementById('d-total').textContent=t.toFixed(2);document.getElementById('d-possible').textContent=money(t*Number(draft.stake||0))}
+function updateDraftTotals(){const t=calcDraft();document.getElementById('d-total').textContent=t.toFixed(2);document.getElementById('d-possible').textContent=money(t*Number(draft.stake||0));updateDraftRisk()}
 function addMatch(){draft.matches.push({name:'',pick:'',odds:1,result:'',status:'Čeká',country:'',league:'',euroLoad:'none',betCategory:'',betType:'',note:'',linkedAnalysisId:null});renderDraft()}
 function removeMatch(i){draft.matches.splice(i,1);renderDraft()}
 function saveDraft(){
@@ -3020,6 +3113,119 @@ function bankrollChart(){
  </svg>
  </div>`;
 }
+function isTennisMatchForDirectory(match){
+ const league=String(match?.league||'').toLowerCase();
+ const country=String(match?.country||'').toLowerCase();
+ return league.includes('tenis')||country.includes('tenis');
+}
+
+function teamsTrackedByTip(match,home,away){
+ const source=[match?.pick,match?.betType].filter(Boolean).join(' ');
+ const homeMention=teamNamesMatch(source,home);
+ const awayMention=teamNamesMatch(source,away);
+ if(homeMention&&!awayMention)return [home];
+ if(awayMention&&!homeMention)return [away];
+ if(homeMention&&awayMention)return [home,away];
+
+ const normalized=normalizeTeamName(source);
+ const tokens=new Set(normalized.split(' ').filter(Boolean));
+ const rawPick=String(match?.pick||'').trim().toLowerCase();
+ const homeRule=rawPick==='1'||tokens.has('1x')||[
+   'vyhra domacich','domaci tym','domaciho tymu','handicap domaci',
+   'vice rohu domaci','rohy domacich','vice strel domaci'
+ ].some(rule=>normalized.includes(rule));
+ const awayRule=rawPick==='2'||tokens.has('x2')||[
+   'vyhra hostu','hostujici tym','hostujiciho tymu','handicap hoste',
+   'vice rohu hoste','rohy hostu','vice strel hoste'
+ ].some(rule=>normalized.includes(rule));
+ if(homeRule&&!awayRule)return [home];
+ if(awayRule&&!homeRule)return [away];
+
+ // Tipy na celý zápas (góly, remíza, rohy apod.) patří oběma týmům.
+ return [home,away];
+}
+
+function leagueDirectoryPriority(league){
+ const name=normalizeTeamName(league?.name||'');
+ if(name.includes('liga mistru')||name.includes('champions league'))return 0;
+ if(name.includes('evropska liga')||name.includes('europa league'))return 1;
+ if(name.includes('konferencni liga')||name.includes('conference league'))return 2;
+ if(league?.name==='Liga neuvedena')return 99;
+ return 10;
+}
+
+function leagueDirectoryStats(){
+ const leagues=new Map();
+ data.tickets.forEach(ticket=>{
+   (ticket.matches||[]).forEach(match=>{
+     if(isTennisMatchForDirectory(match))return;
+     const [home,away]=splitMatchTeams(match.name);
+     if(!home||!away)return;
+     const country=String(match.country||'').trim()||'Nezařazené';
+     const leagueName=String(match.league||'').trim()||'Liga neuvedena';
+     const leagueKey=`${country}||${leagueName}`;
+     if(!leagues.has(leagueKey))leagues.set(leagueKey,{key:leagueKey,country,name:leagueName,teams:new Map()});
+     const league=leagues.get(leagueKey);
+     teamsTrackedByTip(match,home,away).filter(Boolean).forEach(teamName=>{
+       const teamKey=normalizeTeamName(teamName)||teamName.toLowerCase();
+       if(!league.teams.has(teamKey))league.teams.set(teamKey,{name:teamName,ticketIds:new Set(),wins:0,losses:0,voids:0,pending:0});
+       const team=league.teams.get(teamKey);
+       team.ticketIds.add(String(ticket.id||''));
+       if(match.status==='Vyšla')team.wins++;
+       else if(match.status==='Nevyšla')team.losses++;
+       else if(match.status==='Vrácena')team.voids++;
+       else team.pending++;
+     });
+   });
+ });
+ return [...leagues.values()].map(league=>{
+   const teams=[...league.teams.values()].map(team=>{
+     const evaluated=team.wins+team.losses;
+     return {...team,tickets:team.ticketIds.size,evaluated,success:evaluated?team.wins/evaluated*100:0};
+   }).sort((a,b)=>a.name.localeCompare(b.name,'cs'));
+   return {...league,teams};
+ }).sort((a,b)=>{
+   const priority=leagueDirectoryPriority(a)-leagueDirectoryPriority(b);
+   if(priority)return priority;
+   const country=a.country.localeCompare(b.country,'cs');
+   return country||a.name.localeCompare(b.name,'cs');
+ });
+}
+
+function leagueCountryFlag(country){
+ return COMPETITIONS.find(item=>item.country===country)?.flag||'🏳️';
+}
+
+let openLeagueDirectoryKey=null;
+function openLeagueDirectory(index){
+ const league=leagueDirectoryStats()[Number(index)];
+ if(!league)return;
+ openLeagueDirectoryKey=openLeagueDirectoryKey===league.key?null:league.key;
+ renderLeagueTeams();
+}
+
+function renderLeagueTeams(){
+ const el=document.getElementById('view-teams');
+ if(!el)return;
+ const leagues=leagueDirectoryStats();
+ if(openLeagueDirectoryKey&&!leagues.some(league=>league.key===openLeagueDirectoryKey))openLeagueDirectoryKey=null;
+ const selected=leagues.find(league=>league.key===openLeagueDirectoryKey)||null;
+ const folders=leagues.map((league,index)=>`<button type="button" class="league-folder ${selected?.key===league.key?'active':''}" onclick="openLeagueDirectory(${index})" aria-expanded="${selected?.key===league.key?'true':'false'}">
+   <span class="league-folder-icon">📁</span>
+   <span><span class="league-folder-title">${esc(league.name)}</span><span class="league-folder-country">${leagueCountryFlag(league.country)} ${esc(league.country)}</span><span class="league-folder-count">${league.teams.length} ${league.teams.length===1?'tým':'týmů'}</span></span>
+ </button>`).join('');
+ const detail=selected?`<div class="league-team-detail">
+   <div class="league-team-head"><div><h3>${esc(selected.name)}</h3><div class="small">${leagueCountryFlag(selected.country)} ${esc(selected.country)} · týmy jsou seřazené abecedně</div></div><div class="small">Úspěšnost vychází z jednotlivých tipů, ne z výsledku celého kombinovaného tiketu.</div></div>
+   <div class="table-wrap"><table><thead><tr><th>Tým</th><th>Na tiketu</th><th>Úspěšné tipy</th><th>Neúspěšné tipy</th><th>Úspěšnost</th></tr></thead><tbody>
+   ${selected.teams.map(team=>{const color=analyticsColor(team.success,team.evaluated);return `<tr><td><span class="status-dot status-${color}"></span><strong>${esc(team.name)}</strong></td><td>${team.tickets}×</td><td class="pos">${team.wins}</td><td class="neg">${team.losses}</td><td class="team-success-value team-success-${color}">${team.evaluated?team.success.toFixed(1)+' %':'—'}</td></tr>`}).join('')}
+   </tbody></table></div>
+   <div class="small" style="margin-top:8px">Nevyhodnocené a vrácené tipy jsou zahrnuté v počtu výskytů na tiketu, ale nevstupují do procentuální úspěšnosti.</div>
+ </div>`:`<div class="filter-panel" style="margin-top:18px">Otevři složku ligy a ABA zobrazí její týmy a výsledky tvých tipů.</div>`;
+ el.innerHTML=`<div class="dashboard-title-wrap"><div><h2 style="margin-bottom:4px">Ligy a týmy</h2><div class="small">Vlastní týmové statistiky vytvořené z uložených fotbalových tiketů. Tenis se zde nezobrazuje.</div></div></div>
+ <div class="filter-panel"><strong>Jak se statistika počítá</strong><div class="small" style="margin-top:5px">Týmový tip se připíše vybranému týmu. Tip na celý zápas se připíše oběma účastníkům. Zápasy bez uložené soutěže najdeš ve složce „Liga neuvedena“.</div></div>
+ ${leagues.length?`<div class="league-folder-grid">${folders}</div>${detail}`:'<div class="filter-panel">Zatím nejsou k dispozici žádné fotbalové zápasy.</div>'}`;
+}
+
 function countryStats(){
  const map={};
  data.tickets.forEach(t=>t.matches.forEach(m=>{
@@ -3772,6 +3978,7 @@ function renderSettings(){
  ${field('Počáteční bankroll',`<input id="bankroll" inputmode="decimal" value="${data.settings.startingBankroll}">`)}
  ${field('Dorovnání skutečného zůstatku',`<input id="bankrollAdjustment" inputmode="decimal" value="${Number(data.settings.bankrollAdjustment||0)}">`)}
  <p class="small">Dorovnání ovlivňuje bankroll, ale nevstupuje do profitu ani ROI.</p>
+ <div class="backup-export-status"><strong>Poslední exportovaná záloha</strong><span>${data.settings.lastBackupAt?formatBackupDay(data.settings.lastBackupAt):'Zatím nezaznamenána'}</span></div>
  <div class="row-actions" style="flex-wrap:wrap">
 <button class="primary" onclick="saveSettings()">Uložit</button>
 <button class="secondary" onclick="exportData()">Exportovat kompletní zálohu</button>
@@ -3782,10 +3989,23 @@ function renderSettings(){
 <button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
 <button class="danger" onclick="resetData()">Obnovit výchozí data</button>
 </div>
- <p class="small">Verze: ABU 1.0.6 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+ <p class="small">Verze: ABA 1.0.8 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
 }
 function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
-function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
+function exportData(){
+ data.settings.lastBackupAt=new Date().toISOString();
+ saveData();
+ const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+ const a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);
+ a.download=`ABA_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;
+ a.click();
+ URL.revokeObjectURL(a.href);
+ renderSettings();
+}
+function formatBackupDay(iso){
+ try{return new Date(iso).toLocaleDateString('cs-CZ',{day:'numeric',month:'numeric',year:'numeric'})}catch(e){return iso}
+}
 function formatBackupDate(iso){
   try{return new Date(iso).toLocaleString('cs-CZ')}catch(e){return iso}
 }
@@ -3856,7 +4076,7 @@ function resetLogin(){
   logout();
 }
 function resetData(){if(confirm('Opravdu obnovit výchozí data?')){data=structuredClone(defaultData);saveData();renderAll();showView('dashboard')}}
-function renderAll(){renderDashboard();renderHistory();renderWatchlist();renderAnalyses();renderStats();renderSettings()}
+function renderAll(){renderDashboard();renderHistory();renderWatchlist();renderAnalyses();renderLeagueTeams();renderStats();renderSettings()}
 if ("serviceWorker" in navigator) {
   let refreshing=false;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{

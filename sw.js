@@ -1,4 +1,4 @@
-const CACHE='abu-pwa-v1-0-6-dashboard-clarity';
+const CACHE='aba-pwa-v1-0-8-leagues-teams';
 const ASSETS=[
   './',
   './index.html',

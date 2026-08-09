@@ -1,6 +1,6 @@
 {
-  "name": "ABU – Anděl Bet Upgrade",
-  "short_name": "ABU",
+  "name": "ABA – Angel Bet Analytics",
+  "short_name": "ABA",
   "description": "Offline analytický deník tiketů pro Zobáka.",
   "start_url": "./index.html",
   "scope": "./",
