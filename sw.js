@@ -1,4 +1,4 @@
-const CACHE='abu-pwa-v1-0-3-ticket-id-fix';
+const CACHE='abu-pwa-v1-0-4-ledger-repair';
 const ASSETS=[
   './',
   './index.html',

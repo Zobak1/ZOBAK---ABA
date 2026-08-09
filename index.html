@@ -1578,7 +1578,7 @@ body.codex-open{
     <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
     <div id="abaSplashTitle">ABA</div>
     <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
-    <div id="abaSplashVersion">v1.0.3</div>
+    <div id="abaSplashVersion">v1.0.4</div>
   </div>
 </div>
 
@@ -1650,7 +1650,7 @@ body.codex-open{
 
 <header>
   <strong>ABU – Anděl Bet Upgrade</strong>
-  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.3</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.4</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
 </header>
 <div class="layout">
 <nav>
@@ -1676,7 +1676,7 @@ body.codex-open{
 </section>
 
 <script>
-const APP_VERSION='1.0.3';
+const APP_VERSION='1.0.4';
 const KEY='abu_zobak_v1';
 const AUTH_KEY='abu_auth_v1';
 const BACKUP_KEY='abu_internal_backups_v1';
@@ -1834,10 +1834,23 @@ const defaultData={
       {name:'Naomi Osaka – Elise Mertens',pick:'Naomi Osaka vyhraje',odds:1.39,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:'Předčasná výplata.'},
       {name:'Coco Gauff – Maria Sakkari',pick:'Coco Gauff vyhraje',odds:1.24,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:'Předčasná výplata.'},
       {name:'Jakub Menšík – Terence Atmane',pick:'Jakub Menšík vyhraje',odds:1.45,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
-    {id:'2026 - 000018',date:'2026-08-08',stake:100000,totalOdds:2.175,payout:0,status:'Otevřený',note:'Dnešní tiket – výsledek a skutečnou výplatu doplnit ručně. Potenciální výplata 217 500 Kč. Betano ID na snímku nebylo viditelné.',matches:[
-      {name:'PSV Eindhoven – Fortuna Sittard',pick:'PSV Eindhoven vyhraje',odds:1.20,result:'',status:'Čeká',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:''},
-      {name:'AZ Alkmaar – ADO Den Haag',pick:'AZ Alkmaar vyhraje',odds:1.45,result:'',status:'Čeká',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:''},
-      {name:'CF Estrela – Sporting CP',pick:'Sporting CP vyhraje',odds:1.25,result:'',status:'Čeká',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:''}]}
+    {id:'2026 - 000018',date:'2026-08-08',stake:100000,totalOdds:2.175,payout:0,status:'Proherní',note:'Betano – trojkombinace. Prohra.',matches:[
+      {name:'PSV Eindhoven – Fortuna Sittard',pick:'PSV Eindhoven vyhraje',odds:1.20,result:'2:2',status:'Nevyšla',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260808-PSV-FOR'},
+      {name:'AZ Alkmaar – ADO Den Haag',pick:'AZ Alkmaar vyhraje',odds:1.45,result:'2:0',status:'Vyšla',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260808-AZ-ADO'},
+      {name:'CF Estrela – Sporting CP',pick:'Sporting CP vyhraje',odds:1.25,result:'2:2',status:'Nevyšla',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260808-EST-SCP'}]},
+    {id:'2026 - 000019',date:'2026-08-08',stake:100000,totalOdds:3.49168,payout:0,status:'Proherní',note:'Betano – trojkombinace. Prohra.',matches:[
+      {name:'CF Estrela – Sporting CP',pick:'Sporting CP vyhraje',odds:1.39,result:'2:2',status:'Nevyšla',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:''},
+      {name:'AZ Alkmaar – ADO Den Haag',pick:'AZ Alkmaar vyhraje',odds:1.57,result:'2:0',status:'Vyšla',country:'Nizozemsko',league:'Eredivisie',euroLoad:'none',note:''},
+      {name:'Arthur Rinderknech – Brandon Nakashima',pick:'Brandon Nakashima vyhraje',odds:1.60,result:'1:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000020',date:'2026-08-08',stake:71000,totalOdds:4.657014,payout:0,status:'Proherní',note:'Betano – čtyřkombinace. Prohra.',matches:[
+      {name:'Arthur Rinderknech – Brandon Nakashima',pick:'Brandon Nakashima vyhraje',odds:1.78,result:'1:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Jiří Lehečka – Rafael Jódar',pick:'Rafael Jódar vyhraje',odds:1.70,result:'0:2',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Arthur Fils – Cameron Norrie',pick:'Arthur Fils vyhraje',odds:1.35,result:'2:0',status:'Vyšla',country:'',league:'Tenis',euroLoad:'none',note:''},
+      {name:'Aryna Sabalenka – Ekaterina Alexandrova',pick:'Aryna Sabalenka vyhraje',odds:1.14,result:'1:2',status:'Nevyšla',country:'',league:'Tenis',euroLoad:'none',note:''}]},
+    {id:'2026 - 000021',date:'2026-08-09',stake:200000,totalOdds:2.072673,payout:0,status:'Otevřený',note:'Betano – trojkombinace. Potenciální výplata 414 534,60 Kč.',matches:[
+      {name:'Slavia Praha – Pardubice',pick:'Slavia Praha vyhraje a vstřelí více než 1,5 gólu',odds:1.37,result:'',status:'Čeká',country:'Česko',league:'Chance Liga',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260809-SLA-PAR'},
+      {name:'FC Porto – Alverca',pick:'FC Porto vyhraje',odds:1.23,result:'',status:'Čeká',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260809-POR-ALV'},
+      {name:'Benfica – Académico Viseu',pick:'Benfica vyhraje a vstřelí více než 1,5 gólu',odds:1.23,result:'',status:'Čeká',country:'Portugalsko',league:'Primeira Liga',euroLoad:'none',note:'',linkedAnalysisId:'ABA-20260809-BEN-VIS'}]}
   ]
 };
 if(!defaultData.consideredMatches){defaultData.consideredMatches=[]}
@@ -1960,6 +1973,45 @@ function migrateData(raw){
     });
   });
 
+  // v1.0.4: jednorázová obnova účetní řady podle ověřených screenshotů.
+  // Prvních 17 správných tiketů zůstává zachováno včetně ručních poznámek
+  // a propojení. Chybné/duplicitní pozdější záznamy nahradí tikety 18–21.
+  if(!d.settings.ticketLedgerRepair20260809){
+    const ticketNumber=t=>{
+      const m=String(t?.id||'').match(/^(\d{4})\s*[-–—]\s*(\d+)$/);
+      return m&&m[1]==='2026'?Number(m[2]):null;
+    };
+    const preservedBase=defaultData.tickets.slice(0,17).map((template,index)=>{
+      const number=index+1;
+      const candidates=d.tickets.filter(t=>ticketNumber(t)===number);
+      const betanoId=String(template.note||'').match(/Betano ID\s+(\d+)/)?.[1]||'';
+      const exact=candidates.find(t=>betanoId&&String(t.note||'').includes(betanoId));
+      return structuredClone(exact||candidates[0]||template);
+    });
+    const verifiedTail=structuredClone(defaultData.tickets.slice(17));
+    d.tickets=[...preservedBase,...verifiedTail];
+
+    const analysisLinks={
+      'ABA-20260808-PSV-FOR':{ticketId:'2026 - 000018',match:'PSV Eindhoven – Fortuna Sittard',score:'2:2',evaluation:'Neúspěšná'},
+      'ABA-20260808-AZ-ADO':{ticketId:'2026 - 000018',match:'AZ Alkmaar – ADO Den Haag',score:'2:0',evaluation:'Úspěšná'},
+      'ABA-20260808-EST-SCP':{ticketId:'2026 - 000018',match:'CF Estrela – Sporting CP',score:'2:2',evaluation:'Neúspěšná'},
+      'ABA-20260809-SLA-PAR':{ticketId:'2026 - 000021',match:'Slavia Praha – Pardubice'},
+      'ABA-20260809-POR-ALV':{ticketId:'2026 - 000021',match:'FC Porto – Alverca'},
+      'ABA-20260809-BEN-VIS':{ticketId:'2026 - 000021',match:'Benfica – Académico Viseu'}
+    };
+    d.analyses.forEach(a=>{
+      const link=analysisLinks[String(a.abaId||'')];
+      if(!link)return;
+      a.linkedTicketId=link.ticketId;
+      a.linkedMatchName=link.match;
+      if(link.score)a.actualScore=link.score;
+      if(link.evaluation){a.evaluation=link.evaluation;a.resultStatus=link.evaluation}
+    });
+    d.settings.startingBankroll=100000;
+    d.settings.bankrollAdjustment=83.94;
+    d.settings.ticketLedgerRepair20260809=true;
+  }
+
   d.tickets.forEach(t=>{
     if(!Array.isArray(t.matches))t.matches=[];
     if(t.payout===undefined)t.payout=0;
@@ -1978,7 +2030,7 @@ function migrateData(raw){
       if(!m.status)m.status='Čeká';
     });
   });
-  d.schemaVersion=18;
+  d.schemaVersion=19;
   return d;
 }
 function loadData(){
@@ -3653,7 +3705,7 @@ function renderSettings(){
 <button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
 <button class="danger" onclick="resetData()">Obnovit výchozí data</button>
 </div>
- <p class="small">Verze: ABU 1.0.3 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+ <p class="small">Verze: ABU 1.0.4 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
 }
 function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
 function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
