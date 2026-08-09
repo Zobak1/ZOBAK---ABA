@@ -950,7 +950,7 @@ main{
 }
 #view-dashboard .dashboard-chart .chart-box{
   min-height:0;
-  height:calc(100% - 31px);
+  height:calc(100% - 47px);
 }
 #view-dashboard .dashboard-chart .chart-box svg{
   width:100%;
@@ -1583,6 +1583,21 @@ body.codex-open{
 .ticket-status-return{color:#e2b529;background:rgba(255,193,7,.10);border:1px solid rgba(255,193,7,.3)}
 .ticket-status-neutral{color:var(--muted);background:rgba(144,164,174,.10);border:1px solid rgba(144,164,174,.3)}
 
+/* ABA 1.0.6 — přehlednější dashboard a celý údaj profitu */
+#view-dashboard .dashboard-profit-item .dashboard-summary-value{
+  font-size:clamp(11px,.85vw,14px)!important;
+  letter-spacing:-.035em;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+#view-dashboard .dashboard-profit-item{padding-right:2px!important}
+#view-dashboard .dashboard-chart-note{
+  color:var(--muted);
+  font-size:10px;
+  margin-top:-5px;
+  margin-bottom:3px;
+}
+
 </style>
 </head>
 <body>
@@ -1600,7 +1615,7 @@ body.codex-open{
     <img src="icon-512.png?v=0111" alt="ABA – Angel Bet Analytics">
     <div id="abaSplashTitle">ABA</div>
     <div id="abaSplashSub">ANGEL BET ANALYTICS</div>
-    <div id="abaSplashVersion">v1.0.5</div>
+    <div id="abaSplashVersion">v1.0.6</div>
   </div>
 </div>
 
@@ -1672,7 +1687,7 @@ body.codex-open{
 
 <header>
   <strong>ABU – Anděl Bet Upgrade</strong>
-  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.5</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
+  <div style="display:flex;align-items:center;gap:10px"><span id="versionBadge" class="small">v1.0.6</span><span>Zobák</span><button class="secondary" onclick="logout()">Odhlásit</button></div>
 </header>
 <div class="layout">
 <nav>
@@ -1698,7 +1713,7 @@ body.codex-open{
 </section>
 
 <script>
-const APP_VERSION='1.0.5';
+const APP_VERSION='1.0.6';
 const KEY='abu_zobak_v1';
 const AUTH_KEY='abu_auth_v1';
 const BACKUP_KEY='abu_internal_backups_v1';
@@ -2312,9 +2327,10 @@ function dashboardRangeButtons(){
 
 function renderDashboard(){
  const s=summary(),today=todayProfit(),bm=bankrollMetrics(),avg=dashboardAverageOdds(),counts=dashboardCounts(),el=document.getElementById('view-dashboard');
+ const exposurePct=s.total>0?s.openStake/s.total*100:0;
  const kpi=(l,v,i,c='')=>`<div class="dashboard-kpi"><div class="dashboard-label">${l}</div><div class="dashboard-value ${c}">${v}</div><span class="dashboard-icon">${DASH_ICONS[i]}</span></div>`;
  const detail=(l,v,i,c='')=>`<div class="dashboard-detail-card"><div class="dashboard-label">${l}</div><div class="dashboard-detail-value ${c}">${v}</div><span class="dashboard-detail-icon">${DASH_ICONS[i]}</span></div>`;
- const mini=(l,v,i,c='')=>`<div class="dashboard-summary-item"><span class="dashboard-mini-icon">${DASH_ICONS[i]}</span><div class="dashboard-label">${l}</div><div class="dashboard-summary-value ${c}">${v}</div></div>`;
+ const mini=(l,v,i,c='')=>`<div class="dashboard-summary-item ${i==='coins'?'dashboard-profit-item':''}"><span class="dashboard-mini-icon">${DASH_ICONS[i]}</span><div class="dashboard-label">${l}</div><div class="dashboard-summary-value ${c}" title="${esc(v)}">${v}</div></div>`;
  const book=`<svg viewBox="0 0 24 24"><path d="M3 5.5A3.5 3.5 0 0 1 6.5 2H11v18H6.5A3.5 3.5 0 0 0 3 23z"/><path d="M21 5.5A3.5 3.5 0 0 0 17.5 2H13v18h4.5A3.5 3.5 0 0 1 21 23z"/><path d="M6 7h3M15 7h3M6 11h3M15 11h3"/></svg>`;
  el.innerHTML=`<div class="dashboard-shell">
  <div class="dashboard-title-wrap">
@@ -2325,10 +2341,11 @@ function renderDashboard(){
  <div class="dashboard-main-grid">
    <div class="dashboard-main-left">
      <div class="dashboard-chart">
-       <div class="dashboard-chart-head"><h3>Vývoj bankrollu</h3><div class="chart-range">${dashboardRangeButtons()}</div></div>
+       <div class="dashboard-chart-head"><h3>Vývoj celkového bankrollu</h3><div class="chart-range">${dashboardRangeButtons()}</div></div>
+       <div class="dashboard-chart-note">Otevřené vklady se v grafu nepočítají jako ztráta.</div>
        ${bankrollChart()}
      </div>
-     <div class="dashboard-detail-grid">${detail('Nejvyšší dostupný bankroll',money(bm.maximum),'high')}${detail('Celkový bankroll včetně otevřených sázek',moneyExact(s.total),'pulse')}${detail('Rozdíl od maxima',`${bm.drawdown>=0?'+':''}${money(bm.drawdown)}`,'trophy',bm.drawdown>=0?'pos':'neg')}${detail('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}</div>
+     <div class="dashboard-detail-grid">${detail('Celkový bankroll',moneyExact(s.total),'pulse')}${detail(`V otevřených tiketech (${exposurePct.toFixed(2)} %)`,moneyExact(s.openStake),'ticket')}${detail('Nejvyšší celkový bankroll',moneyExact(bm.maximum),'high')}${detail('Skutečný rozdíl od maxima',`${bm.drawdown>=0?'+':''}${moneyExact(bm.drawdown)}`,'trophy',bm.drawdown>=0?'pos':'neg')}</div>
      <div class="dashboard-summary-grid">${mini('Počet tiketů',counts.total,'ticket')}${mini('Výhry',counts.wins,'check','pos')}${mini('Prohry',counts.losses,'cross','neg')}${mini('Úspěšnost',`${s.success.toFixed(2)} %`,'target')}${mini('Průměrný kurz',avg?avg.toFixed(2):'—','bars')}${mini('Profit',`${s.profit>=0?'+':''}${money(s.profit)}`,'coins',s.profit>=0?'pos':'neg')}</div>
    </div>
    <aside class="dashboard-codex-link">
@@ -2913,21 +2930,20 @@ function ticketProfit(t){
 }
 const BANKROLL_BASELINE_DATE='2026-08-01';
 const BANKROLL_BASELINE_VALUE=100000;
-const BANKROLL_Y_STEP=20000;
+const BANKROLL_Y_STEP=100000;
 
 function bankrollSeries(){
  let bank=BANKROLL_BASELINE_VALUE;
+ const adjustment=Number(data.settings.bankrollAdjustment||0);
  const rows=[{label:'1. 8.',date:BANKROLL_BASELINE_DATE,value:bank,isBaseline:true}];
  settledTickets()
    .filter(t=>String(t.date||'')>=BANKROLL_BASELINE_DATE)
    .forEach(t=>{
      bank+=ticketProfit(t);
-     rows.push({label:t.date,date:t.date,value:bank,id:t.id});
+     // Dorovnání je součástí celkového kapitálu, ale nikoli profitu ani ROI.
+     rows.push({label:t.date,date:t.date,value:bank+adjustment,id:t.id});
    });
- const openStake=data.tickets
-   .filter(t=>['Otevřený','Rozpracovaný'].includes(t.status))
-   .reduce((sum,t)=>sum+Number(t.stake||0),0);
- if(rows.length)rows[rows.length-1].value+=Number(data.settings.bankrollAdjustment||0)-openStake;
+ if(rows.length===1)rows[0].value+=adjustment;
  return rows;
 }
 function bankrollChart(){
@@ -2988,7 +3004,7 @@ function bankrollChart(){
 
  return `<div class="chart-box">
  <img class="chart-watermark" src="aba-watermark.png?v=0216" alt="">
- <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Vývoj bankrollu">
+ <svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Vývoj celkového bankrollu">
    <defs>
      <linearGradient id="bankrollAreaGradient" x1="0" y1="0" x2="0" y2="1">
        <stop offset="0%" stop-color="#00D6D6" stop-opacity=".46"/>
@@ -3766,7 +3782,7 @@ function renderSettings(){
 <button class="secondary" onclick="resetLogin()">Změnit přihlášení</button>
 <button class="danger" onclick="resetData()">Obnovit výchozí data</button>
 </div>
- <p class="small">Verze: ABU 1.0.5 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
+ <p class="small">Verze: ABU 1.0.6 · Data jsou uložená pouze v tomto prohlížeči na tomto zařízení.</p></div>`;
 }
 function saveSettings(){data.settings.startingBankroll=Number(document.getElementById('bankroll').value.replace(',','.'))||100000;data.settings.bankrollAdjustment=Number(document.getElementById('bankrollAdjustment').value.replace(',','.'))||0;saveData();alert('Nastavení uloženo.');renderDashboard()}
 function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ABU_zaloha_${new Date().toISOString().slice(0,10)}_v${APP_VERSION}.json`;a.click();URL.revokeObjectURL(a.href)}
